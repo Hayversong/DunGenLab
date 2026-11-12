@@ -34,3 +34,25 @@ export interface Rng {
   chance(p: number): boolean;
   pick<T>(arr: readonly T[]): T;
 }
+
+// Descreve um parâmetro numérico para a interface montar o campo sozinha.
+export interface ParamDef {
+  key: string;
+  label: string;
+  type: "int" | "float";
+  min: number;
+  max: number;
+  step: number;
+}
+
+export type GenParams = Record<string, number>;
+
+export interface MapGenerator<P extends GenParams = GenParams> {
+  id: string;
+  name: string;
+  description: string;
+  defaultParams: P;
+  paramSchema: ParamDef[];
+  // Muta o grid recebido e devolve um passo leve a cada yield.
+  run(grid: Grid, params: P, rng: Rng): Generator<GenStep, void, void>;
+}
