@@ -1,42 +1,50 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { ControlPanel } from "./components/ControlPanel";
 import { MapCanvas } from "./components/MapCanvas";
-import { createGrid, setTile } from "./core/grid";
-import { Tile } from "./core/types";
-import type { Grid, Point } from "./core/types";
+import { PlaybackBar } from "./components/PlaybackBar";
+import { generators, getGenerator } from "./core/generators";
+import type { GenParams, MapGenerator } from "./core/types";
+import { useGeneration } from "./hooks/useGeneration";
+import type { GenerationStatus } from "./hooks/useGeneration";
 import styles from "./App.module.css";
 
 const GRID_WIDTH = 80;
 const GRID_HEIGHT = 50;
 const TILE_SIZE = 10;
 
-const ALGORITHMS = ["Drunkard's Walk", "Cellular Automata", "BSP"];
+const DEFAULT_GENERATOR = generators[0] as MapGenerator;
 
-// Grid de teste até os geradores existirem: xadrez de chão e parede.
-function createCheckerboard(width: number, height: number): Grid {
-  const grid = createGrid(width, height);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if ((x + y) % 2 === 0) setTile(grid, x, y, Tile.FLOOR);
-    }
-  }
-  return grid;
+const STATUS_TEXT: Record<GenerationStatus, string> = {
+  idle: "Clique em Gerar para começar.",
+  running: "Gerando…",
+  paused: "Em pausa.",
+  done: "Concluído.",
+};
+
+// Única fonte de acaso fora do Rng: só escolhe um texto de seed novo.
+function randomSeed(): string {
+  return Math.random().toString(36).slice(2, 10);
 }
 
-// Os quatro cantos, para conferir que o canvas tem o tamanho certo.
-const CORNERS: Point[] = [
-  { x: 0, y: 0 },
-  { x: GRID_WIDTH - 1, y: 0 },
-  { x: 0, y: GRID_HEIGHT - 1 },
-  { x: GRID_WIDTH - 1, y: GRID_HEIGHT - 1 },
-];
-
 function App() {
-  const gridRef = useRef<Grid | null>(null);
-  if (gridRef.current === null) {
-    gridRef.current = createCheckerboard(GRID_WIDTH, GRID_HEIGHT);
-  }
-  const [version] = useState(0);
+  const [generator, setGenerator] = useState(DEFAULT_GENERATOR);
+  const [params, setParams] = useState<GenParams>(
+    DEFAULT_GENERATOR.defaultParams,
+  );
   const [seed, setSeed] = useState("gato-preto");
+  const generation = useGeneration(GRID_WIDTH, GRID_HEIGHT);
+
+  function handleGeneratorChange(id: string) {
+    const next = getGenerator(id);
+    if (!next) return;
+    generation.reset();
+    setGenerator(next);
+    setParams(next.defaultParams);
+  }
+
+  function handleParamChange(key: string, value: number) {
+    setParams((current) => ({ ...current, [key]: value }));
+  }
 
   return (
     <div className={styles.app}>
@@ -48,34 +56,38 @@ function App() {
       <main className={styles.layout}>
         <section className={styles.stage} aria-label="Mapa">
           <MapCanvas
-            gridRef={gridRef}
+            gridRef={generation.gridRef}
             tileSize={TILE_SIZE}
-            highlight={CORNERS}
-            version={version}
+            highlight={generation.lastStep?.highlight}
+            version={generation.version}
+          />
+          <p className={styles.stepText} role="status">
+            {generation.lastStep?.description ?? STATUS_TEXT[generation.status]}
+          </p>
+          <PlaybackBar
+            status={generation.status}
+            speed={generation.speed}
+            onGenerate={() => generation.start({ generator, params, seed })}
+            onPause={generation.pause}
+            onResume={generation.resume}
+            onStep={generation.step}
+            onFinish={generation.finish}
+            onReset={generation.reset}
+            onSpeedChange={generation.setSpeed}
           />
         </section>
 
         <aside className={styles.panel} aria-label="Controles">
-          <div className={styles.field}>
-            <label htmlFor="algorithm">Algoritmo</label>
-            <select id="algorithm" disabled>
-              {ALGORITHMS.map((name) => (
-                <option key={name}>{name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label htmlFor="seed">Seed</label>
-            <input
-              id="seed"
-              type="text"
-              value={seed}
-              onChange={(event) => setSeed(event.target.value)}
-              spellCheck={false}
-              autoComplete="off"
-            />
-          </div>
+          <ControlPanel
+            generators={generators}
+            generator={generator}
+            params={params}
+            seed={seed}
+            onGeneratorChange={handleGeneratorChange}
+            onParamChange={handleParamChange}
+            onSeedChange={setSeed}
+            onRandomSeed={() => setSeed(randomSeed())}
+          />
 
           <section className={styles.metrics} aria-labelledby="metrics-title">
             <h2 id="metrics-title">Métricas</h2>

@@ -1,0 +1,64 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.buttons button {
+  padding: 8px 14px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.buttons button:hover:not(:disabled) {
+  border-color: var(--text-muted);
+}
+
+.buttons button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.buttons button:focus-visible,
+.speed input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.buttons .primary {
+  color: #14161c;
+  font-weight: 600;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.speed {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.speed input {
+  width: 140px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.speed output {
+  min-width: 9.5em;
+  font-variant-numeric: tabular-nums;
+}
