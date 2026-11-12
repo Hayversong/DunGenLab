@@ -1,0 +1,89 @@
+.app {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.stage {
+  min-width: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.field input,
+.field select {
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.field select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.metrics {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.metrics h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
