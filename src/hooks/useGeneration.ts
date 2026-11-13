@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import type { MapMeta } from "../core/export";
 import { createGrid } from "../core/grid";
-import { computeMetrics } from "../core/metrics";
+import { computeMetrics, countRooms } from "../core/metrics";
 import type { MapMetrics } from "../core/metrics";
 import { createRng } from "../core/rng";
 import type { GenParams, GenStep, Grid, MapGenerator } from "../core/types";
@@ -28,6 +28,8 @@ export interface Generation {
   elapsedMs: number | null;
   // Como o mapa em exibição foi gerado; null se não há mapa.
   meta: MapMeta | null;
+  // true se o mapa em exibição veio de um arquivo, e não de uma geração.
+  imported: boolean;
   // Passos do gerador consumidos a cada quadro de animação.
   speed: number;
   setSpeed: (speed: number) => void;
@@ -94,6 +96,7 @@ export function useGeneration(
   const [metrics, setMetrics] = useState<MapMetrics | null>(null);
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
   const [meta, setMeta] = useState<MapMeta | null>(null);
+  const [imported, setImported] = useState(false);
 
   // Leva o resultado de `consume` para o estado da tela.
   const apply = useCallback(({ last, finished }: Consumed) => {
@@ -148,6 +151,7 @@ export function useGeneration(
       setMetrics(null);
       setElapsedMs(null);
       setMeta({ generator: generator.id, seed, params });
+      setImported(false);
       setVersion((v) => v + 1);
       setStatus("running");
     },
@@ -194,10 +198,17 @@ export function useGeneration(
     iteratorRef.current = null;
     optionsRef.current = null;
     gridRef.current = grid;
-    setLastStep({ description: "Mapa importado de arquivo.", done: true });
+    // O arquivo não guarda o contador de salas do BSP; conta pelo desenho.
+    const rooms = countRooms(grid);
+    setLastStep({
+      description: "Mapa importado de arquivo.",
+      done: true,
+      ...(rooms > 0 ? { roomCount: rooms } : {}),
+    });
     setMetrics(computeMetrics(grid));
     setElapsedMs(null);
     setMeta(loadedMeta);
+    setImported(true);
     setVersion((v) => v + 1);
     setStatus("done");
   }, []);
@@ -209,6 +220,7 @@ export function useGeneration(
     setMetrics(null);
     setElapsedMs(null);
     setMeta(null);
+    setImported(false);
     setVersion((v) => v + 1);
     setStatus("idle");
   }, []);
@@ -221,6 +233,7 @@ export function useGeneration(
     metrics,
     elapsedMs,
     meta,
+    imported,
     speed,
     setSpeed,
     start,

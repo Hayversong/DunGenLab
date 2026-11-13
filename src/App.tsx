@@ -206,6 +206,7 @@ function App() {
             metrics={generation.metrics}
             roomCount={generation.lastStep?.roomCount ?? null}
             elapsedMs={generation.elapsedMs}
+            imported={generation.imported}
           />
 
           <ExportPanel

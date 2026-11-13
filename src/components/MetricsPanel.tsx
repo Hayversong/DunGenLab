@@ -7,6 +7,8 @@ interface MetricsPanelProps {
   roomCount: number | null;
   // null quando a geração terminou pela animação, sem medição.
   elapsedMs: number | null;
+  // Mapa vindo de arquivo: não houve geração, então não há tempo a medir.
+  imported: boolean;
 }
 
 // Uma casa decimal, com vírgula.
@@ -19,6 +21,7 @@ export function MetricsPanel({
   metrics,
   roomCount,
   elapsedMs,
+  imported,
 }: MetricsPanelProps) {
   return (
     <section className={styles.metrics} aria-labelledby="metrics-title">
@@ -54,7 +57,9 @@ export function MetricsPanel({
           </dl>
           {elapsedMs === null && (
             <p className={styles.hint}>
-              O tempo é medido ao usar Finalizar, que gera sem a animação.
+              {imported
+                ? "Este mapa veio de um arquivo, então não há geração para medir."
+                : "O tempo é medido ao usar Finalizar, que gera sem a animação."}
             </p>
           )}
         </>
