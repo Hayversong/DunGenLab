@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { ControlPanel } from "./components/ControlPanel";
+import type { MapSize } from "./components/ControlPanel";
 import { ExportPanel } from "./components/ExportPanel";
 import { MapCanvas } from "./components/MapCanvas";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { PlaybackBar } from "./components/PlaybackBar";
+import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_WIDTH,
+  MAX_MAP_HEIGHT,
+  MAX_MAP_WIDTH,
+  MIN_MAP_HEIGHT,
+  MIN_MAP_WIDTH,
+} from "./core/constants";
 import { exportFileName, fromJSON, toJSON } from "./core/export";
 import { generators, getGenerator } from "./core/generators";
 import type { GenParams, MapGenerator } from "./core/types";
@@ -14,9 +23,14 @@ import { renderPngBlob } from "./render/pngExport";
 import type { PngTileSize } from "./render/pngExport";
 import styles from "./App.module.css";
 
-const GRID_WIDTH = 80;
-const GRID_HEIGHT = 50;
-const TILE_SIZE = 10;
+const DEFAULT_SIZE: MapSize = {
+  width: DEFAULT_MAP_WIDTH,
+  height: DEFAULT_MAP_HEIGHT,
+};
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
 const DEFAULT_GENERATOR = generators[0] as MapGenerator;
 
@@ -45,7 +59,7 @@ function fitParams(generator: MapGenerator, imported: GenParams): GenParams {
   const params: GenParams = {};
   for (const def of generator.paramSchema) {
     const value = imported[def.key] ?? generator.defaultParams[def.key] ?? 0;
-    params[def.key] = Math.min(def.max, Math.max(def.min, value));
+    params[def.key] = clamp(value, def.min, def.max);
   }
   return params;
 }
@@ -56,9 +70,10 @@ function App() {
     DEFAULT_GENERATOR.defaultParams,
   );
   const [seed, setSeed] = useState("gato-preto");
+  const [size, setSize] = useState(DEFAULT_SIZE);
   const generation = useGeneration(
-    GRID_WIDTH,
-    GRID_HEIGHT,
+    DEFAULT_SIZE.width,
+    DEFAULT_SIZE.height,
     DEFAULT_GENERATOR.defaultSpeed,
   );
 
@@ -70,7 +85,7 @@ function App() {
   function handleGeneratorChange(id: string) {
     const next = getGenerator(id);
     if (!next) return;
-    generation.reset();
+    generation.reset(size.width, size.height);
     setGenerator(next);
     setParams(next.defaultParams);
     generation.setSpeed(next.defaultSpeed);
@@ -78,6 +93,14 @@ function App() {
 
   function handleParamChange(key: string, value: number) {
     setParams((current) => ({ ...current, [key]: value }));
+  }
+
+  function handleSizeChange(key: keyof MapSize, value: number) {
+    const next = { ...size, [key]: value };
+    setSize(next);
+    // Sem mapa na tela, o quadro vazio já acompanha o tamanho escolhido. Com
+    // mapa, o tamanho novo só vale a partir da próxima geração.
+    if (generation.status === "idle") generation.reset(next.width, next.height);
   }
 
   async function handleExportPng(tileSize: PngTileSize) {
@@ -120,6 +143,12 @@ function App() {
       setGenerator(imported);
       setParams(fitted);
       setSeed(meta.seed);
+      // Os controles ficam com o tamanho do arquivo, para o próximo Gerar
+      // sair igual. Arquivo menor que o mínimo da tela fica no mínimo.
+      setSize({
+        width: clamp(grid.width, MIN_MAP_WIDTH, MAX_MAP_WIDTH),
+        height: clamp(grid.height, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT),
+      });
       generation.setSpeed(imported.defaultSpeed);
       generation.load(grid, { ...meta, params: fitted });
     } catch (error) {
@@ -138,7 +167,6 @@ function App() {
         <section className={styles.stage} aria-label="Mapa">
           <MapCanvas
             gridRef={generation.gridRef}
-            tileSize={TILE_SIZE}
             highlight={generation.lastStep?.highlight}
             version={generation.version}
           />
@@ -148,12 +176,14 @@ function App() {
           <PlaybackBar
             status={generation.status}
             speed={generation.speed}
-            onGenerate={() => generation.start({ generator, params, seed })}
+            onGenerate={() =>
+              generation.start({ generator, params, seed, ...size })
+            }
             onPause={generation.pause}
             onResume={generation.resume}
             onStep={generation.step}
             onFinish={generation.finish}
-            onReset={generation.reset}
+            onReset={() => generation.reset(size.width, size.height)}
             onSpeedChange={generation.setSpeed}
           />
         </section>
@@ -164,10 +194,12 @@ function App() {
             generator={generator}
             params={params}
             seed={seed}
+            size={size}
             onGeneratorChange={handleGeneratorChange}
             onParamChange={handleParamChange}
             onSeedChange={setSeed}
             onRandomSeed={() => setSeed(randomSeed())}
+            onSizeChange={handleSizeChange}
           />
 
           <MetricsPanel

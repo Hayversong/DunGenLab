@@ -13,6 +13,8 @@ export interface StartOptions {
   generator: MapGenerator;
   params: GenParams;
   seed: string;
+  width: number;
+  height: number;
 }
 
 export interface Generation {
@@ -36,7 +38,8 @@ export interface Generation {
   finish: () => void;
   // Mostra um mapa pronto, vindo de arquivo, como geração concluída.
   load: (grid: Grid, meta: MapMeta) => void;
-  reset: () => void;
+  // Volta ao estado inicial, com um grid vazio do tamanho pedido.
+  reset: (width: number, height: number) => void;
 }
 
 // Velocidades oferecidas, em passos por quadro. As menores que 1 existem
@@ -71,13 +74,13 @@ function consume(
 }
 
 export function useGeneration(
-  width: number,
-  height: number,
+  initialWidth: number,
+  initialHeight: number,
   initialSpeed: number,
 ): Generation {
   const gridRef = useRef<Grid | null>(null);
   if (gridRef.current === null) {
-    gridRef.current = createGrid(width, height);
+    gridRef.current = createGrid(initialWidth, initialHeight);
   }
   const iteratorRef = useRef<Generator<GenStep, void, void> | null>(null);
   // Fração de passo acumulada entre quadros quando a velocidade é menor que 1.
@@ -133,8 +136,8 @@ export function useGeneration(
   }, [status, speed, advance]);
 
   const start = useCallback(
-    ({ generator, params, seed }: StartOptions) => {
-      optionsRef.current = { generator, params, seed };
+    ({ generator, params, seed, width, height }: StartOptions) => {
+      optionsRef.current = { generator, params, seed, width, height };
       const grid = createGrid(width, height);
       gridRef.current = grid;
       iteratorRef.current = generator.run(grid, params, createRng(seed));
@@ -148,7 +151,7 @@ export function useGeneration(
       setVersion((v) => v + 1);
       setStatus("running");
     },
-    [width, height],
+    [],
   );
 
   const pause = useCallback(() => {
@@ -172,7 +175,7 @@ export function useGeneration(
     // Refaz a geração do começo, de uma vez só. Com a mesma seed o mapa sai
     // igual ao que estava sendo animado, e o tempo medido vale para a geração
     // inteira, não só para o trecho que faltava.
-    const grid = createGrid(width, height);
+    const grid = createGrid(options.width, options.height);
     const iterator = options.generator.run(
       grid,
       options.params,
@@ -185,7 +188,7 @@ export function useGeneration(
     gridRef.current = grid;
     setElapsedMs(elapsed);
     apply(consumed);
-  }, [width, height, apply]);
+  }, [apply]);
 
   const load = useCallback((grid: Grid, loadedMeta: MapMeta) => {
     iteratorRef.current = null;
@@ -199,7 +202,7 @@ export function useGeneration(
     setStatus("done");
   }, []);
 
-  const reset = useCallback(() => {
+  const reset = useCallback((width: number, height: number) => {
     iteratorRef.current = null;
     gridRef.current = createGrid(width, height);
     setLastStep(null);
@@ -208,7 +211,7 @@ export function useGeneration(
     setMeta(null);
     setVersion((v) => v + 1);
     setStatus("idle");
-  }, [width, height]);
+  }, []);
 
   return {
     gridRef,

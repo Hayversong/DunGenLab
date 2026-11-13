@@ -1,16 +1,49 @@
-import type { GenParams, MapGenerator } from "../core/types";
+import {
+  MAX_MAP_HEIGHT,
+  MAX_MAP_WIDTH,
+  MIN_MAP_HEIGHT,
+  MIN_MAP_WIDTH,
+} from "../core/constants";
+import type { GenParams, MapGenerator, ParamDef } from "../core/types";
 import { ParamField } from "./ParamField";
 import styles from "./ControlPanel.module.css";
+
+export interface MapSize {
+  width: number;
+  height: number;
+}
+
+// Largura e altura usam o mesmo campo dos parâmetros dos algoritmos.
+const SIZE_FIELDS: (ParamDef & { key: keyof MapSize })[] = [
+  {
+    key: "width",
+    label: "Largura (tiles)",
+    type: "int",
+    min: MIN_MAP_WIDTH,
+    max: MAX_MAP_WIDTH,
+    step: 1,
+  },
+  {
+    key: "height",
+    label: "Altura (tiles)",
+    type: "int",
+    min: MIN_MAP_HEIGHT,
+    max: MAX_MAP_HEIGHT,
+    step: 1,
+  },
+];
 
 interface ControlPanelProps {
   generators: readonly MapGenerator[];
   generator: MapGenerator;
   params: GenParams;
   seed: string;
+  size: MapSize;
   onGeneratorChange: (id: string) => void;
   onParamChange: (key: string, value: number) => void;
   onSeedChange: (seed: string) => void;
   onRandomSeed: () => void;
+  onSizeChange: (key: keyof MapSize, value: number) => void;
 }
 
 export function ControlPanel({
@@ -18,10 +51,12 @@ export function ControlPanel({
   generator,
   params,
   seed,
+  size,
   onGeneratorChange,
   onParamChange,
   onSeedChange,
   onRandomSeed,
+  onSizeChange,
 }: ControlPanelProps) {
   return (
     <div className={styles.panel}>
@@ -57,6 +92,18 @@ export function ControlPanel({
           </button>
         </div>
       </div>
+
+      <fieldset className={styles.params}>
+        <legend>Tamanho do mapa</legend>
+        {SIZE_FIELDS.map((def) => (
+          <ParamField
+            key={def.key}
+            def={def}
+            value={size[def.key]}
+            onChange={(_, value) => onSizeChange(def.key, value)}
+          />
+        ))}
+      </fieldset>
 
       <fieldset className={styles.params}>
         <legend>Parâmetros</legend>

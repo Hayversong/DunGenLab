@@ -1,4 +1,10 @@
 import { describe, expect, it } from "vitest";
+import {
+  MAX_MAP_HEIGHT,
+  MAX_MAP_WIDTH,
+  MIN_MAP_HEIGHT,
+  MIN_MAP_WIDTH,
+} from "../src/core/constants";
 import { generators, getGenerator } from "../src/core/generators";
 import { drunkardsWalk } from "../src/core/generators/drunkardsWalk";
 import type { DrunkardsWalkParams } from "../src/core/generators/drunkardsWalk";
@@ -199,4 +205,35 @@ describe("drunkard's walk", () => {
       ).toBeLessThanOrEqual(interior);
     }
   });
+});
+
+describe("tamanhos de mapa aceitos pela interface", () => {
+  const sizes: [number, number][] = [
+    [MIN_MAP_WIDTH, MIN_MAP_HEIGHT],
+    [MAX_MAP_WIDTH, MIN_MAP_HEIGHT],
+    [MIN_MAP_WIDTH, MAX_MAP_HEIGHT],
+    [MAX_MAP_WIDTH, MAX_MAP_HEIGHT],
+  ];
+
+  for (const generator of generators) {
+    it(`${generator.name} termina com chão e bordas de parede nos extremos`, () => {
+      for (const [width, height] of sizes) {
+        const grid = createGrid(width, height);
+        const run = generator.run(grid, generator.defaultParams, createRng(7));
+        let last: GenStep | undefined;
+        for (const step of run) last = step;
+
+        expect(last?.done).toBe(true);
+        expect(floorPercent(grid)).toBeGreaterThan(0);
+        for (let x = 0; x < width; x++) {
+          expect(getTile(grid, x, 0)).toBe(Tile.WALL);
+          expect(getTile(grid, x, height - 1)).toBe(Tile.WALL);
+        }
+        for (let y = 0; y < height; y++) {
+          expect(getTile(grid, 0, y)).toBe(Tile.WALL);
+          expect(getTile(grid, width - 1, y)).toBe(Tile.WALL);
+        }
+      }
+    });
+  }
 });

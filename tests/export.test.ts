@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { MAX_MAP_HEIGHT, MAX_MAP_WIDTH } from "../src/core/constants";
 import {
   EXPORT_VERSION,
-  MAX_MAP_HEIGHT,
-  MAX_MAP_WIDTH,
   exportFileName,
   fromJSON,
   toJSON,

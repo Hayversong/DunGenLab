@@ -6,6 +6,7 @@ import {
   TILE_COLORS,
   canvasSize,
   drawGrid,
+  fitTileSize,
   tileColor,
 } from "../src/render/canvasRenderer";
 
@@ -97,5 +98,25 @@ describe("drawGrid", () => {
       w: 10,
       h: 10,
     });
+  });
+});
+
+describe("fitTileSize", () => {
+  it("o mapa padrão usa tiles de 10 pixels", () => {
+    expect(fitTileSize(createGrid(80, 50))).toBe(10);
+  });
+
+  it("o maior mapa encolhe os tiles, sem passar do mínimo", () => {
+    expect(fitTileSize(createGrid(200, 120))).toBe(4);
+  });
+
+  it("mapa pequeno aumenta os tiles, sem passar do máximo", () => {
+    expect(fitTileSize(createGrid(20, 20))).toBe(16);
+    expect(fitTileSize(createGrid(4, 2))).toBe(16);
+  });
+
+  it("respeita a dimensão mais apertada", () => {
+    // 100 de largura caberia com 8, mas 120 de altura só cabe com 5.
+    expect(fitTileSize(createGrid(100, 120))).toBe(5);
   });
 });

@@ -27,6 +27,21 @@ export function canvasSize(grid: Grid, tileSize: number): CanvasSize {
   return { width: grid.width * tileSize, height: grid.height * tileSize };
 }
 
+// Espaço que o mapa pode ocupar na tela, em pixels, e os limites do tile.
+const SCREEN_MAX_WIDTH = 800;
+const SCREEN_MAX_HEIGHT = 600;
+const SCREEN_MIN_TILE = 4;
+const SCREEN_MAX_TILE = 16;
+
+// Escolhe o maior tile inteiro com que o grid cabe no espaço da tela: mapa
+// grande ganha tiles menores, mapa pequeno ganha tiles maiores.
+export function fitTileSize(grid: Grid): number {
+  const fit = Math.floor(
+    Math.min(SCREEN_MAX_WIDTH / grid.width, SCREEN_MAX_HEIGHT / grid.height),
+  );
+  return Math.min(SCREEN_MAX_TILE, Math.max(SCREEN_MIN_TILE, fit));
+}
+
 export function drawGrid(
   ctx: CanvasRenderingContext2D,
   grid: Grid,

@@ -1,14 +1,10 @@
+import { MAX_MAP_HEIGHT, MAX_MAP_WIDTH } from "./constants";
 import { createGrid } from "./grid";
 import type { GenParams, Grid } from "./types";
 
 // Versão do formato do arquivo. Sobe quando o formato mudar de um jeito que
 // arquivos antigos precisem de tratamento diferente.
 export const EXPORT_VERSION = 1;
-
-// Maior mapa aceito na importação. Sem teto, um arquivo malicioso ou
-// corrompido poderia pedir um grid gigante e travar a página.
-export const MAX_MAP_WIDTH = 200;
-export const MAX_MAP_HEIGHT = 120;
 
 // O que acompanha o grid no arquivo: como o mapa foi gerado.
 export interface MapMeta {
