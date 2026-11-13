@@ -5,16 +5,11 @@ import { ExportPanel } from "./components/ExportPanel";
 import { MapCanvas } from "./components/MapCanvas";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { PlaybackBar } from "./components/PlaybackBar";
-import {
-  DEFAULT_MAP_HEIGHT,
-  DEFAULT_MAP_WIDTH,
-  MAX_MAP_HEIGHT,
-  MAX_MAP_WIDTH,
-  MIN_MAP_HEIGHT,
-  MIN_MAP_WIDTH,
-} from "./core/constants";
+import { DEFAULT_MAP_HEIGHT, DEFAULT_MAP_WIDTH } from "./core/constants";
 import { exportFileName, fromJSON, toJSON } from "./core/export";
 import { generators, getGenerator } from "./core/generators";
+import { clampMapSize } from "./core/grid";
+import { clampParams } from "./core/params";
 import type { GenParams, MapGenerator } from "./core/types";
 import { useGeneration } from "./hooks/useGeneration";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -28,10 +23,6 @@ const DEFAULT_SIZE: MapSize = {
   width: DEFAULT_MAP_WIDTH,
   height: DEFAULT_MAP_HEIGHT,
 };
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
 
 const DEFAULT_GENERATOR = generators[0] as MapGenerator;
 
@@ -53,17 +44,6 @@ function errorMessage(error: unknown): string {
 
 // Um mapa do maior tamanho aceito cabe com muita folga neste limite.
 const MAX_IMPORT_BYTES = 1024 * 1024;
-
-// Ajusta os parâmetros de um arquivo ao que o algoritmo declara: usa o padrão
-// para o que faltar, descarta o que sobrar e prende cada valor na sua faixa.
-function fitParams(generator: MapGenerator, imported: GenParams): GenParams {
-  const params: GenParams = {};
-  for (const def of generator.paramSchema) {
-    const value = imported[def.key] ?? generator.defaultParams[def.key] ?? 0;
-    params[def.key] = clamp(value, def.min, def.max);
-  }
-  return params;
-}
 
 function App() {
   const [generator, setGenerator] = useState(DEFAULT_GENERATOR);
@@ -164,16 +144,13 @@ function App() {
         );
       }
 
-      const fitted = fitParams(imported, meta.params);
+      const fitted = clampParams(imported, meta.params);
       setGenerator(imported);
       setParams(fitted);
       setSeed(meta.seed);
       // Os controles ficam com o tamanho do arquivo, para o próximo Gerar
       // sair igual. Arquivo menor que o mínimo da tela fica no mínimo.
-      setSize({
-        width: clamp(grid.width, MIN_MAP_WIDTH, MAX_MAP_WIDTH),
-        height: clamp(grid.height, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT),
-      });
+      setSize(clampMapSize(grid.width, grid.height));
       generation.setSpeed(imported.defaultSpeed);
       generation.load(grid, { ...meta, params: fitted });
     } catch (error) {

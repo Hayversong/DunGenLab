@@ -1,3 +1,9 @@
+import {
+  MAX_MAP_HEIGHT,
+  MAX_MAP_WIDTH,
+  MIN_MAP_HEIGHT,
+  MIN_MAP_WIDTH,
+} from "./constants";
 import { Tile } from "./types";
 import type { Grid, TileValue } from "./types";
 
@@ -13,6 +19,20 @@ export function createGrid(
     throw new RangeError("As dimensões do grid precisam ser positivas");
   }
   return { width, height, tiles: new Uint8Array(width * height).fill(fill) };
+}
+
+// Prende um tamanho de mapa nos limites aceitos e o deixa inteiro. Valor que
+// não é número vira o mínimo.
+export function clampMapSize(
+  width: number,
+  height: number,
+): { width: number; height: number } {
+  const fit = (value: number, min: number, max: number) =>
+    Number.isNaN(value) ? min : Math.round(Math.min(max, Math.max(min, value)));
+  return {
+    width: fit(width, MIN_MAP_WIDTH, MAX_MAP_WIDTH),
+    height: fit(height, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT),
+  };
 }
 
 export function inBounds(grid: Grid, x: number, y: number): boolean {

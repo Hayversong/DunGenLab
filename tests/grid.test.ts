@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  clampMapSize,
   cloneGrid,
   countTiles,
   createGrid,
@@ -92,5 +93,27 @@ describe("countTiles", () => {
     setTile(grid, 2, 0, Tile.CORRIDOR);
     expect(countTiles(grid, (t) => t !== Tile.WALL)).toBe(3);
     expect(countTiles(grid, (t) => t === Tile.WALL)).toBe(6);
+  });
+});
+
+describe("clampMapSize", () => {
+  it("mantém tamanhos dentro dos limites", () => {
+    expect(clampMapSize(80, 50)).toEqual({ width: 80, height: 50 });
+    expect(clampMapSize(20, 20)).toEqual({ width: 20, height: 20 });
+    expect(clampMapSize(200, 120)).toEqual({ width: 200, height: 120 });
+  });
+
+  it("prende o que passa dos limites", () => {
+    expect(clampMapSize(4, 2)).toEqual({ width: 20, height: 20 });
+    expect(clampMapSize(5000, 5000)).toEqual({ width: 200, height: 120 });
+    expect(clampMapSize(-10, Infinity)).toEqual({ width: 20, height: 120 });
+  });
+
+  it("devolve sempre inteiros, mesmo com entrada quebrada", () => {
+    expect(clampMapSize(80.6, 49.5)).toEqual({ width: 81, height: 50 });
+    expect(clampMapSize(Number.NaN, Number.NaN)).toEqual({
+      width: 20,
+      height: 20,
+    });
   });
 });

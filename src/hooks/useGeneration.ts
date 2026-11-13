@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import type { MapMeta } from "../core/export";
-import { createGrid } from "../core/grid";
+import { clampMapSize, createGrid } from "../core/grid";
 import { computeMetrics, countRooms } from "../core/metrics";
+import { clampParams } from "../core/params";
 import type { MapMetrics } from "../core/metrics";
 import { createRng } from "../core/rng";
 import type { GenParams, GenStep, Grid, MapGenerator } from "../core/types";
@@ -138,25 +139,27 @@ export function useGeneration(
     return () => cancelAnimationFrame(frameId);
   }, [status, speed, advance]);
 
-  const start = useCallback(
-    ({ generator, params, seed, width, height }: StartOptions) => {
-      optionsRef.current = { generator, params, seed, width, height };
-      const grid = createGrid(width, height);
-      gridRef.current = grid;
-      iteratorRef.current = generator.run(grid, params, createRng(seed));
-      // Começa com um passo inteiro de crédito: o primeiro aparece já no
-      // quadro seguinte, mesmo em velocidade baixa.
-      budgetRef.current = 1;
-      setLastStep(null);
-      setMetrics(null);
-      setElapsedMs(null);
-      setMeta({ generator: generator.id, seed, params });
-      setImported(false);
-      setVersion((v) => v + 1);
-      setStatus("running");
-    },
-    [],
-  );
+  const start = useCallback((options: StartOptions) => {
+    // Última barreira antes do gerador: nada fora dos limites passa daqui,
+    // venha de onde vier.
+    const { generator, seed } = options;
+    const params = clampParams(generator, options.params);
+    const { width, height } = clampMapSize(options.width, options.height);
+    optionsRef.current = { generator, params, seed, width, height };
+    const grid = createGrid(width, height);
+    gridRef.current = grid;
+    iteratorRef.current = generator.run(grid, params, createRng(seed));
+    // Começa com um passo inteiro de crédito: o primeiro aparece já no
+    // quadro seguinte, mesmo em velocidade baixa.
+    budgetRef.current = 1;
+    setLastStep(null);
+    setMetrics(null);
+    setElapsedMs(null);
+    setMeta({ generator: generator.id, seed, params });
+    setImported(false);
+    setVersion((v) => v + 1);
+    setStatus("running");
+  }, []);
 
   const pause = useCallback(() => {
     setStatus((current) => (current === "running" ? "paused" : current));
@@ -214,8 +217,9 @@ export function useGeneration(
   }, []);
 
   const reset = useCallback((width: number, height: number) => {
+    const size = clampMapSize(width, height);
     iteratorRef.current = null;
-    gridRef.current = createGrid(width, height);
+    gridRef.current = createGrid(size.width, size.height);
     setLastStep(null);
     setMetrics(null);
     setElapsedMs(null);
