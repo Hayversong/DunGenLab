@@ -24,6 +24,8 @@ export interface GenStep {
   description?: string;
   highlight?: Point[];
   done?: boolean;
+  // Só o BSP preenche, e só no último passo: quantas salas ele criou.
+  roomCount?: number;
 }
 
 export interface Rng {
