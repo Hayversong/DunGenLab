@@ -34,6 +34,8 @@ export interface Generation {
   resume: () => void;
   step: () => void;
   finish: () => void;
+  // Mostra um mapa pronto, vindo de arquivo, como geração concluída.
+  load: (grid: Grid, meta: MapMeta) => void;
   reset: () => void;
 }
 
@@ -185,6 +187,18 @@ export function useGeneration(
     apply(consumed);
   }, [width, height, apply]);
 
+  const load = useCallback((grid: Grid, loadedMeta: MapMeta) => {
+    iteratorRef.current = null;
+    optionsRef.current = null;
+    gridRef.current = grid;
+    setLastStep({ description: "Mapa importado de arquivo.", done: true });
+    setMetrics(computeMetrics(grid));
+    setElapsedMs(null);
+    setMeta(loadedMeta);
+    setVersion((v) => v + 1);
+    setStatus("done");
+  }, []);
+
   const reset = useCallback(() => {
     iteratorRef.current = null;
     gridRef.current = createGrid(width, height);
@@ -211,6 +225,7 @@ export function useGeneration(
     resume,
     step,
     finish,
+    load,
     reset,
   };
 }

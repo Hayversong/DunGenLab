@@ -4,7 +4,7 @@ import { ExportPanel } from "./components/ExportPanel";
 import { MapCanvas } from "./components/MapCanvas";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { PlaybackBar } from "./components/PlaybackBar";
-import { exportFileName } from "./core/export";
+import { exportFileName, fromJSON, toJSON } from "./core/export";
 import { generators, getGenerator } from "./core/generators";
 import type { GenParams, MapGenerator } from "./core/types";
 import { useGeneration } from "./hooks/useGeneration";
@@ -34,6 +34,20 @@ function randomSeed(): string {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Algo deu errado.";
+}
+
+// Um mapa do maior tamanho aceito cabe com muita folga neste limite.
+const MAX_IMPORT_BYTES = 1024 * 1024;
+
+// Ajusta os parâmetros de um arquivo ao que o algoritmo declara: usa o padrão
+// para o que faltar, descarta o que sobrar e prende cada valor na sua faixa.
+function fitParams(generator: MapGenerator, imported: GenParams): GenParams {
+  const params: GenParams = {};
+  for (const def of generator.paramSchema) {
+    const value = imported[def.key] ?? generator.defaultParams[def.key] ?? 0;
+    params[def.key] = Math.min(def.max, Math.max(def.min, value));
+  }
+  return params;
 }
 
 function App() {
@@ -75,6 +89,41 @@ function App() {
       downloadBlob(blob, exportFileName(exportable.seed, "png"));
     } catch (error) {
       setExportError(errorMessage(error));
+    }
+  }
+
+  function handleExportJson() {
+    const grid = generation.gridRef.current;
+    if (!grid || !exportable) return;
+    setExportError(null);
+    const blob = new Blob([toJSON(grid, exportable)], {
+      type: "application/json",
+    });
+    downloadBlob(blob, exportFileName(exportable.seed, "json"));
+  }
+
+  async function handleImportJson(file: File) {
+    setExportError(null);
+    try {
+      if (file.size > MAX_IMPORT_BYTES) {
+        throw new Error("O arquivo é grande demais para ser um mapa.");
+      }
+      const { grid, meta } = fromJSON(await file.text());
+      const imported = getGenerator(meta.generator);
+      if (!imported) {
+        throw new Error(
+          `O arquivo usa o algoritmo "${meta.generator}", que este app não conhece.`,
+        );
+      }
+
+      const fitted = fitParams(imported, meta.params);
+      setGenerator(imported);
+      setParams(fitted);
+      setSeed(meta.seed);
+      generation.setSpeed(imported.defaultSpeed);
+      generation.load(grid, { ...meta, params: fitted });
+    } catch (error) {
+      setExportError(`Não foi possível importar: ${errorMessage(error)}`);
     }
   }
 
@@ -131,6 +180,8 @@ function App() {
             canExport={exportable !== null}
             error={exportError}
             onExportPng={handleExportPng}
+            onExportJson={handleExportJson}
+            onImportJson={handleImportJson}
           />
         </aside>
       </main>
