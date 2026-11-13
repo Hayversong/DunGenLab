@@ -9,10 +9,10 @@ export interface MapMetrics {
   largestRegionPercent: number;
 }
 
-// Devolve o tamanho de cada região: grupo de tiles caminháveis ligados por
-// cima, baixo, esquerda ou direita. Diagonal não liga, porque quem anda pelo
-// mapa não atravessa a quina entre duas paredes.
-export function regionSizes(grid: Grid): number[] {
+// Devolve o tamanho de cada grupo de tiles que passam em `belongs` e estão
+// ligados por cima, baixo, esquerda ou direita. Diagonal não liga, porque quem
+// anda pelo mapa não atravessa a quina entre duas paredes.
+function groupSizes(grid: Grid, belongs: (tile: number) => boolean): number[] {
   const { width, tiles } = grid;
   const visited = new Uint8Array(tiles.length);
   const sizes: number[] = [];
@@ -21,7 +21,7 @@ export function regionSizes(grid: Grid): number[] {
   const queue: number[] = [];
 
   function enqueue(index: number): void {
-    if (tiles[index] === Tile.WALL || visited[index]) return;
+    if (visited[index] || !belongs(tiles[index] as number)) return;
     // Marca ao entrar na fila, e não ao sair: assim nenhum tile entra duas
     // vezes.
     visited[index] = 1;
@@ -29,7 +29,7 @@ export function regionSizes(grid: Grid): number[] {
   }
 
   for (let start = 0; start < tiles.length; start++) {
-    if (tiles[start] === Tile.WALL || visited[start]) continue;
+    if (visited[start] || !belongs(tiles[start] as number)) continue;
 
     queue.length = 0;
     enqueue(start);
@@ -47,6 +47,18 @@ export function regionSizes(grid: Grid): number[] {
   }
 
   return sizes;
+}
+
+// Tamanho de cada região: grupo de tiles caminháveis (tudo que não é parede).
+export function regionSizes(grid: Grid): number[] {
+  return groupSizes(grid, (tile) => tile !== Tile.WALL);
+}
+
+// Conta as salas olhando só para o grid: cada grupo de tiles de sala é uma.
+// Serve para mapas que chegam prontos, sem o contador que o BSP mantém
+// enquanto gera. Corredores têm outro valor de tile, então não juntam salas.
+export function countRooms(grid: Grid): number {
+  return groupSizes(grid, (tile) => tile === Tile.ROOM).length;
 }
 
 export function computeMetrics(grid: Grid): MapMetrics {

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { bsp } from "../src/core/generators/bsp";
 import { createGrid, setTile } from "../src/core/grid";
-import { computeMetrics, regionSizes } from "../src/core/metrics";
+import { createRng } from "../src/core/rng";
+import { computeMetrics, countRooms, regionSizes } from "../src/core/metrics";
 import { Tile } from "../src/core/types";
 import type { Grid, TileValue } from "../src/core/types";
 
@@ -142,5 +144,49 @@ describe("computeMetrics", () => {
     const before = grid.tiles.slice();
     computeMetrics(grid);
     expect(grid.tiles).toEqual(before);
+  });
+});
+
+describe("countRooms", () => {
+  it("grid sem tiles de sala: zero", () => {
+    expect(countRooms(createGrid(5, 5))).toBe(0);
+    expect(countRooms(createGrid(5, 5, Tile.FLOOR))).toBe(0);
+  });
+
+  it("corredor entre duas salas não as transforma em uma só", () => {
+    // prettier-ignore
+    const grid = drawGrid([
+      "#########",
+      "#RR###RR#",
+      "#RRcccRR#",
+      "#########",
+    ]);
+    expect(countRooms(grid)).toBe(2);
+    expect(computeMetrics(grid).regionCount).toBe(1);
+  });
+
+  it("salas que só se tocam na diagonal contam separadas", () => {
+    // prettier-ignore
+    const grid = drawGrid([
+      "RR##",
+      "RR##",
+      "##RR",
+    ]);
+    expect(countRooms(grid)).toBe(2);
+  });
+
+  it("bate com o contador do BSP em vários tamanhos de mapa", () => {
+    const sizes: [number, number][] = [
+      [20, 20],
+      [80, 50],
+      [200, 120],
+    ];
+    for (const [width, height] of sizes) {
+      for (let seed = 0; seed < 10; seed++) {
+        const grid = createGrid(width, height);
+        const steps = [...bsp.run(grid, bsp.defaultParams, createRng(seed))];
+        expect(countRooms(grid)).toBe(steps.at(-1)?.roomCount);
+      }
+    }
   });
 });
