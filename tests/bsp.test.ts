@@ -3,6 +3,7 @@ import { getGenerator } from "../src/core/generators";
 import { bsp } from "../src/core/generators/bsp";
 import type { BspParams } from "../src/core/generators/bsp";
 import { countTiles, createGrid, getTile } from "../src/core/grid";
+import { computeMetrics } from "../src/core/metrics";
 import { createRng } from "../src/core/rng";
 import { Tile } from "../src/core/types";
 import type { GenStep, Grid } from "../src/core/types";
@@ -157,6 +158,27 @@ describe("bsp", () => {
         step.description?.startsWith("Corredor"),
       );
       expect(corridors).toHaveLength(roomCount - 1);
+    }
+  });
+
+  it("todas as salas ficam em uma única região conectada", () => {
+    const variations: Partial<BspParams>[] = [
+      {},
+      { minLeafSize: 6, maxDepth: 8 },
+      { minLeafSize: 20, maxDepth: 2 },
+      { roomPadding: 3, corridorWidth: 3 },
+      { minLeafSize: 6, roomPadding: 3, corridorWidth: 2 },
+    ];
+    for (const params of variations) {
+      for (const seed of SEEDS) {
+        const { grid, roomCount } = runBsp(seed, params);
+        expect(roomCount).toBeGreaterThanOrEqual(1);
+        // Uma região só para todo o chão: dá para ir de qualquer sala a
+        // qualquer outra, e nenhum corredor ficou solto.
+        const metrics = computeMetrics(grid);
+        expect(metrics.regionCount).toBe(1);
+        expect(metrics.largestRegionPercent).toBe(100);
+      }
     }
   });
 
