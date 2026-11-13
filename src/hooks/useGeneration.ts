@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
+import type { MapMeta } from "../core/export";
 import { createGrid } from "../core/grid";
 import { computeMetrics } from "../core/metrics";
 import type { MapMetrics } from "../core/metrics";
@@ -23,6 +24,8 @@ export interface Generation {
   metrics: MapMetrics | null;
   // Tempo da geração rodada de uma vez, sem animação. Só o Finalizar mede.
   elapsedMs: number | null;
+  // Como o mapa em exibição foi gerado; null se não há mapa.
+  meta: MapMeta | null;
   // Passos do gerador consumidos a cada quadro de animação.
   speed: number;
   setSpeed: (speed: number) => void;
@@ -85,6 +88,7 @@ export function useGeneration(
   const [speed, setSpeed] = useState(initialSpeed);
   const [metrics, setMetrics] = useState<MapMetrics | null>(null);
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
+  const [meta, setMeta] = useState<MapMeta | null>(null);
 
   // Leva o resultado de `consume` para o estado da tela.
   const apply = useCallback(({ last, finished }: Consumed) => {
@@ -138,6 +142,7 @@ export function useGeneration(
       setLastStep(null);
       setMetrics(null);
       setElapsedMs(null);
+      setMeta({ generator: generator.id, seed, params });
       setVersion((v) => v + 1);
       setStatus("running");
     },
@@ -186,6 +191,7 @@ export function useGeneration(
     setLastStep(null);
     setMetrics(null);
     setElapsedMs(null);
+    setMeta(null);
     setVersion((v) => v + 1);
     setStatus("idle");
   }, [width, height]);
@@ -197,6 +203,7 @@ export function useGeneration(
     lastStep,
     metrics,
     elapsedMs,
+    meta,
     speed,
     setSpeed,
     start,

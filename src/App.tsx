@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { ControlPanel } from "./components/ControlPanel";
+import { ExportPanel } from "./components/ExportPanel";
 import { MapCanvas } from "./components/MapCanvas";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { PlaybackBar } from "./components/PlaybackBar";
+import { exportFileName } from "./core/export";
 import { generators, getGenerator } from "./core/generators";
 import type { GenParams, MapGenerator } from "./core/types";
 import { useGeneration } from "./hooks/useGeneration";
 import type { GenerationStatus } from "./hooks/useGeneration";
+import { downloadBlob } from "./render/download";
+import { renderPngBlob } from "./render/pngExport";
+import type { PngTileSize } from "./render/pngExport";
 import styles from "./App.module.css";
 
 const GRID_WIDTH = 80;
@@ -27,6 +32,10 @@ function randomSeed(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Algo deu errado.";
+}
+
 function App() {
   const [generator, setGenerator] = useState(DEFAULT_GENERATOR);
   const [params, setParams] = useState<GenParams>(
@@ -39,6 +48,11 @@ function App() {
     DEFAULT_GENERATOR.defaultSpeed,
   );
 
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  // Só há o que exportar com um mapa completo na tela.
+  const exportable = generation.status === "done" ? generation.meta : null;
+
   function handleGeneratorChange(id: string) {
     const next = getGenerator(id);
     if (!next) return;
@@ -50,6 +64,18 @@ function App() {
 
   function handleParamChange(key: string, value: number) {
     setParams((current) => ({ ...current, [key]: value }));
+  }
+
+  async function handleExportPng(tileSize: PngTileSize) {
+    const grid = generation.gridRef.current;
+    if (!grid || !exportable) return;
+    setExportError(null);
+    try {
+      const blob = await renderPngBlob(grid, tileSize);
+      downloadBlob(blob, exportFileName(exportable.seed, "png"));
+    } catch (error) {
+      setExportError(errorMessage(error));
+    }
   }
 
   return (
@@ -99,6 +125,12 @@ function App() {
             metrics={generation.metrics}
             roomCount={generation.lastStep?.roomCount ?? null}
             elapsedMs={generation.elapsedMs}
+          />
+
+          <ExportPanel
+            canExport={exportable !== null}
+            error={exportError}
+            onExportPng={handleExportPng}
           />
         </aside>
       </main>
