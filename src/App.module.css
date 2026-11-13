@@ -50,3 +50,14 @@
   border: 1px solid var(--border);
   border-radius: 6px;
 }
+
+/* Em tela estreita o painel desce para baixo do mapa e ocupa a largura toda. */
+@media (max-width: 900px) {
+  .app {
+    padding: 16px;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,5 +1,7 @@
 .canvas {
   display: block;
+  /* Mapas pequenos ficam no meio do palco em vez de colados à esquerda. */
+  margin: 0 auto;
   max-width: 100%;
   height: auto;
   /* Se o CSS precisar encolher o canvas, mantém os pixels duros. */
