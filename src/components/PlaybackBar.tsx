@@ -55,16 +55,29 @@ export function PlaybackBar({
           type="button"
           onClick={status === "running" ? onPause : onResume}
           disabled={!inProgress}
+          aria-keyshortcuts="Space"
         >
           {status === "running" ? "Pausar" : "Continuar"}
         </button>
-        <button type="button" onClick={onStep} disabled={!inProgress}>
+        {/* Com a animação rodando, o passo manual não faria diferença: é
+            preciso pausar antes. */}
+        <button
+          type="button"
+          onClick={onStep}
+          disabled={status !== "paused"}
+          aria-keyshortcuts="ArrowRight"
+        >
           Passo
         </button>
         <button type="button" onClick={onFinish} disabled={!inProgress}>
           Finalizar
         </button>
-        <button type="button" onClick={onReset} disabled={status === "idle"}>
+        <button
+          type="button"
+          onClick={onReset}
+          disabled={status === "idle"}
+          aria-keyshortcuts="R"
+        >
           Reiniciar
         </button>
       </div>
@@ -84,6 +97,11 @@ export function PlaybackBar({
         />
         <output htmlFor="speed">{formatSpeed(speed)}</output>
       </div>
+
+      <p className={styles.shortcuts}>
+        Atalhos: <kbd>Espaço</kbd> gera, pausa ou continua · <kbd>→</kbd> avança
+        um passo na pausa · <kbd>R</kbd> reinicia
+      </p>
     </div>
   );
 }

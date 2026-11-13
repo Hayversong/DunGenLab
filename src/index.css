@@ -28,3 +28,10 @@ body {
   color: var(--text);
   background: var(--bg);
 }
+
+/* Um só contorno de foco para o app inteiro. Aparece ao navegar pelo teclado
+   e não ao clicar com o mouse. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

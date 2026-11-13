@@ -51,12 +51,6 @@
   cursor: not-allowed;
 }
 
-.row select:focus-visible,
-.buttons button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
 .hint {
   margin: 0;
   font-size: 0.8rem;

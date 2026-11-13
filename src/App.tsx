@@ -17,6 +17,7 @@ import { exportFileName, fromJSON, toJSON } from "./core/export";
 import { generators, getGenerator } from "./core/generators";
 import type { GenParams, MapGenerator } from "./core/types";
 import { useGeneration } from "./hooks/useGeneration";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import type { GenerationStatus } from "./hooks/useGeneration";
 import { downloadBlob } from "./render/download";
 import { renderPngBlob } from "./render/pngExport";
@@ -81,6 +82,30 @@ function App() {
 
   // Só há o que exportar com um mapa completo na tela.
   const exportable = generation.status === "done" ? generation.meta : null;
+
+  function handleGenerate() {
+    generation.start({ generator, params, seed, ...size });
+  }
+
+  function handleReset() {
+    generation.reset(size.width, size.height);
+  }
+
+  // Cada atalho faz o mesmo que o botão correspondente e respeita os mesmos
+  // estados em que o botão fica desabilitado.
+  useKeyboardShortcuts({
+    toggle: () => {
+      if (generation.status === "running") generation.pause();
+      else if (generation.status === "paused") generation.resume();
+      else handleGenerate();
+    },
+    step: () => {
+      if (generation.status === "paused") generation.step();
+    },
+    reset: () => {
+      if (generation.status !== "idle") handleReset();
+    },
+  });
 
   function handleGeneratorChange(id: string) {
     const next = getGenerator(id);
@@ -170,20 +195,24 @@ function App() {
             highlight={generation.lastStep?.highlight}
             version={generation.version}
           />
-          <p className={styles.stepText} role="status">
+          {/* Durante a animação o texto muda dezenas de vezes por segundo;
+              um leitor de tela só é avisado quando ela para. */}
+          <p
+            className={styles.stepText}
+            role="status"
+            aria-live={generation.status === "running" ? "off" : "polite"}
+          >
             {generation.lastStep?.description ?? STATUS_TEXT[generation.status]}
           </p>
           <PlaybackBar
             status={generation.status}
             speed={generation.speed}
-            onGenerate={() =>
-              generation.start({ generator, params, seed, ...size })
-            }
+            onGenerate={handleGenerate}
             onPause={generation.pause}
             onResume={generation.resume}
             onStep={generation.step}
             onFinish={generation.finish}
-            onReset={() => generation.reset(size.width, size.height)}
+            onReset={handleReset}
             onSpeedChange={generation.setSpeed}
           />
         </section>
