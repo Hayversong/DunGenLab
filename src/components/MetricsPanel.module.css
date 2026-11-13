@@ -1,0 +1,39 @@
+.metrics {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.metrics h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.empty,
+.hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 0.8rem;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.list dt {
+  color: var(--text-muted);
+}
+
+.list dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

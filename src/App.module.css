@@ -50,19 +50,3 @@
   border: 1px solid var(--border);
   border-radius: 6px;
 }
-
-.metrics {
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.metrics h2 {
-  margin: 0 0 8px;
-  font-size: 1rem;
-}
-
-.empty {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}

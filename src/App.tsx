@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ControlPanel } from "./components/ControlPanel";
 import { MapCanvas } from "./components/MapCanvas";
+import { MetricsPanel } from "./components/MetricsPanel";
 import { PlaybackBar } from "./components/PlaybackBar";
 import { generators, getGenerator } from "./core/generators";
 import type { GenParams, MapGenerator } from "./core/types";
@@ -94,12 +95,11 @@ function App() {
             onRandomSeed={() => setSeed(randomSeed())}
           />
 
-          <section className={styles.metrics} aria-labelledby="metrics-title">
-            <h2 id="metrics-title">Métricas</h2>
-            <p className={styles.empty}>
-              As métricas aparecem ao fim da geração.
-            </p>
-          </section>
+          <MetricsPanel
+            metrics={generation.metrics}
+            roomCount={generation.lastStep?.roomCount ?? null}
+            elapsedMs={generation.elapsedMs}
+          />
         </aside>
       </main>
     </div>
