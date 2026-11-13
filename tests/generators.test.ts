@@ -40,6 +40,12 @@ describe("registro de geradores", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("todo gerador sugere uma velocidade de animação positiva", () => {
+    for (const generator of generators) {
+      expect(generator.defaultSpeed).toBeGreaterThan(0);
+    }
+  });
+
   it("todo parâmetro do schema tem valor padrão dentro da faixa", () => {
     for (const generator of generators) {
       for (const def of generator.paramSchema) {

@@ -28,21 +28,29 @@ export interface Generation {
   reset: () => void;
 }
 
-export const MIN_SPEED = 1;
-export const MAX_SPEED = 100;
-const DEFAULT_SPEED = 5;
+// Velocidades oferecidas, em passos por quadro. As menores que 1 existem
+// porque alguns algoritmos têm poucos passos e acabariam num piscar de olhos.
+export const SPEED_LEVELS: readonly number[] = [
+  0.02, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100,
+];
 
-export function useGeneration(width: number, height: number): Generation {
+export function useGeneration(
+  width: number,
+  height: number,
+  initialSpeed: number,
+): Generation {
   const gridRef = useRef<Grid | null>(null);
   if (gridRef.current === null) {
     gridRef.current = createGrid(width, height);
   }
   const iteratorRef = useRef<Generator<GenStep, void, void> | null>(null);
+  // Fração de passo acumulada entre quadros quando a velocidade é menor que 1.
+  const budgetRef = useRef(0);
 
   const [status, setStatus] = useState<GenerationStatus>("idle");
   const [version, setVersion] = useState(0);
   const [lastStep, setLastStep] = useState<GenStep | null>(null);
-  const [speed, setSpeed] = useState(DEFAULT_SPEED);
+  const [speed, setSpeed] = useState(initialSpeed);
 
   // Consome até `count` passos do gerador e devolve true se ele terminou.
   const advance = useCallback((count: number): boolean => {
@@ -74,7 +82,10 @@ export function useGeneration(width: number, height: number): Generation {
     if (status !== "running") return;
 
     let frameId = requestAnimationFrame(function tick() {
-      if (!advance(speed)) {
+      budgetRef.current += speed;
+      const count = Math.floor(budgetRef.current);
+      budgetRef.current -= count;
+      if (count === 0 || !advance(count)) {
         frameId = requestAnimationFrame(tick);
       }
     });
@@ -88,6 +99,9 @@ export function useGeneration(width: number, height: number): Generation {
       const grid = createGrid(width, height);
       gridRef.current = grid;
       iteratorRef.current = generator.run(grid, params, createRng(seed));
+      // Começa com um passo inteiro de crédito: o primeiro aparece já no
+      // quadro seguinte, mesmo em velocidade baixa.
+      budgetRef.current = 1;
       setLastStep(null);
       setVersion((v) => v + 1);
       setStatus("running");

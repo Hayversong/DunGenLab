@@ -156,5 +156,6 @@ export const drunkardsWalk: MapGenerator<DrunkardsWalkParams> = {
       step: 0.05,
     },
   ],
+  defaultSpeed: 5,
   run,
 };

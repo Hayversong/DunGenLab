@@ -53,6 +53,9 @@ export interface MapGenerator<P extends GenParams = GenParams> {
   description: string;
   defaultParams: P;
   paramSchema: ParamDef[];
+  // Passos por quadro sugeridos para a animação. Abaixo de 1 significa um
+  // passo a cada vários quadros, para algoritmos com poucos passos.
+  defaultSpeed: number;
   // Muta o grid recebido e devolve um passo leve a cada yield.
   run(grid: Grid, params: P, rng: Rng): Generator<GenStep, void, void>;
 }

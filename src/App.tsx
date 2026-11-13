@@ -32,7 +32,11 @@ function App() {
     DEFAULT_GENERATOR.defaultParams,
   );
   const [seed, setSeed] = useState("gato-preto");
-  const generation = useGeneration(GRID_WIDTH, GRID_HEIGHT);
+  const generation = useGeneration(
+    GRID_WIDTH,
+    GRID_HEIGHT,
+    DEFAULT_GENERATOR.defaultSpeed,
+  );
 
   function handleGeneratorChange(id: string) {
     const next = getGenerator(id);
@@ -40,6 +44,7 @@ function App() {
     generation.reset();
     setGenerator(next);
     setParams(next.defaultParams);
+    generation.setSpeed(next.defaultSpeed);
   }
 
   function handleParamChange(key: string, value: number) {

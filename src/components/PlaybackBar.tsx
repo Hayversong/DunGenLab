@@ -1,5 +1,5 @@
 import type { GenerationStatus } from "../hooks/useGeneration";
-import { MAX_SPEED, MIN_SPEED } from "../hooks/useGeneration";
+import { SPEED_LEVELS } from "../hooks/useGeneration";
 import styles from "./PlaybackBar.module.css";
 
 interface PlaybackBarProps {
@@ -12,6 +12,24 @@ interface PlaybackBarProps {
   onFinish: () => void;
   onReset: () => void;
   onSpeedChange: (speed: number) => void;
+}
+
+// O controle deslizante anda pelas posições da lista, não pelo valor: assim
+// cabem no mesmo controle velocidades de 0,02 a 100 passos por quadro.
+function closestLevel(speed: number): number {
+  let best = 0;
+  SPEED_LEVELS.forEach((level, index) => {
+    const current = SPEED_LEVELS[best] ?? level;
+    if (Math.abs(level - speed) < Math.abs(current - speed)) best = index;
+  });
+  return best;
+}
+
+function formatSpeed(speed: number): string {
+  if (speed >= 1) {
+    return speed === 1 ? "1 passo/quadro" : `${speed} passos/quadro`;
+  }
+  return `1 passo a cada ${Math.round(1 / speed)} quadros`;
 }
 
 export function PlaybackBar({
@@ -56,13 +74,15 @@ export function PlaybackBar({
         <input
           id="speed"
           type="range"
-          min={MIN_SPEED}
-          max={MAX_SPEED}
+          min={0}
+          max={SPEED_LEVELS.length - 1}
           step={1}
-          value={speed}
-          onChange={(event) => onSpeedChange(event.target.valueAsNumber)}
+          value={closestLevel(speed)}
+          onChange={(event) =>
+            onSpeedChange(SPEED_LEVELS[event.target.valueAsNumber] ?? speed)
+          }
         />
-        <output htmlFor="speed">{speed} passos/quadro</output>
+        <output htmlFor="speed">{formatSpeed(speed)}</output>
       </div>
     </div>
   );
