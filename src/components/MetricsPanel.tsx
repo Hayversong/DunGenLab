@@ -64,8 +64,8 @@ export function MetricsPanel({
           {elapsedMs === null && (
             <p className={styles.hint}>
               {imported
-                ? "Este mapa veio de um arquivo, então não há geração para medir."
-                : "O tempo é medido ao usar Finalizar, que gera sem a animação."}
+                ? "Mapa vindo de arquivo: não há geração para medir."
+                : "O tempo só é medido com Finalizar."}
             </p>
           )}
         </>

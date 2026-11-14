@@ -1,52 +1,186 @@
+/* A tela inteira é uma grade com áreas nomeadas. Cada célula tem um respiro
+   do tamanho da moldura, que é desenhada para fora das janelas. */
 .app {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 24px;
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "commands map side"
+    "commands dialog side";
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: 248px minmax(0, 1fr) 280px;
+  gap: var(--space-2);
+  height: 100dvh;
+  padding: var(--space-2);
 }
 
 .header {
-  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  grid-area: header;
+  gap: var(--space-2) var(--space-6);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--frame);
 }
 
-.header h1 {
+.brand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  align-items: baseline;
+  min-width: 0;
+}
+
+.brand h1 {
   color: var(--gold);
 }
 
-.header p {
-  margin: var(--space-1) 0 0;
+.brand p {
+  margin: 0;
   color: var(--text-stone);
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 24px;
-  align-items: start;
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--frame-sm);
 }
 
-.stage {
+.tools span {
+  color: var(--text-stone);
+}
+
+.tools select {
+  --frame-light: var(--win-inner);
+  min-height: 36px;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text);
+  background: var(--win-track);
+  border: 0;
+}
+
+.commands,
+.side {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--frame);
+  /* Em tela baixa a coluna rola por dentro; a página nunca rola. */
+  overflow-y: auto;
+}
+
+.commands {
+  grid-area: commands;
+}
+
+.side {
+  grid-area: side;
+}
+
+/* A última janela da coluna estica até o fim: não sobra faixa vazia. */
+.grow {
+  flex: 1;
+}
+
+.map {
+  display: flex;
+  grid-area: map;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--frame);
+}
+
+/* Moldura de pedra em volta do mapa. O fundo é a cor do vazio do mapa, para
+   a sobra em volta dele parecer continuação da rocha. */
+.mapFrame {
+  --frame-light: var(--stone-700);
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--stone-950);
+}
+
+.dialog {
+  grid-area: dialog;
   min-width: 0;
   padding: var(--frame);
 }
 
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  /* Espaço para as molduras, que são desenhadas para fora das janelas. */
-  padding: var(--frame);
+.exit {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 1;
 }
 
-/* Em tela estreita o painel desce para baixo do mapa e ocupa a largura toda. */
-@media (max-width: 900px) {
+/* Modo exibição: só o mapa e a caixa de texto. */
+.app[data-display="true"] {
+  grid-template-areas:
+    "map"
+    "dialog";
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  height: 100dvh;
+}
+
+/* Tablet: o mapa continua grande e as janelas viram abas em uma coluna. */
+@media (max-width: 1099px) {
   .app {
-    padding: 16px;
+    grid-template-areas:
+      "header header"
+      "map side"
+      "dialog side";
+    grid-template-columns: minmax(0, 1fr) 312px;
   }
 
-  .layout {
+  .brand p {
+    display: none;
+  }
+
+  .side {
+    gap: var(--space-3);
+  }
+
+  .tools select,
+  .tools button,
+  .exit button {
+    min-height: var(--touch);
+  }
+}
+
+/* Celular, e tablet em pé: uma coluna só, e a página rola. */
+@media (max-width: 699px), (max-width: 1099px) and (orientation: portrait) {
+  .app {
+    grid-template-areas:
+      "header"
+      "map"
+      "dialog"
+      "side";
+    grid-template-rows: auto;
     grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .side {
+    overflow-y: visible;
+  }
+}
+
+@media (max-width: 699px) {
+  /* Quatro controles em duas linhas, cada um com metade da largura. */
+  .tools {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .tools span {
+    display: none;
   }
 }

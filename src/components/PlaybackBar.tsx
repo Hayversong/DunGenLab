@@ -6,6 +6,9 @@ import styles from "./PlaybackBar.module.css";
 interface PlaybackBarProps {
   status: GenerationStatus;
   speed: number;
+  // "main" são os três botões mais usados; "extra" é o resto. Em tela
+  // estreita eles ficam em lugares diferentes; "all" mostra tudo junto.
+  part?: "all" | "main" | "extra";
   onGenerate: () => void;
   onPause: () => void;
   onResume: () => void;
@@ -30,12 +33,13 @@ function formatSpeed(speed: number): string {
   if (speed >= 1) {
     return speed === 1 ? "1 passo/quadro" : `${speed} passos/quadro`;
   }
-  return `1 passo a cada ${Math.round(1 / speed)} quadros`;
+  return `1 passo/${Math.round(1 / speed)} quadros`;
 }
 
 export function PlaybackBar({
   status,
   speed,
+  part = "all",
   onGenerate,
   onPause,
   onResume,
@@ -45,61 +49,73 @@ export function PlaybackBar({
   onSpeedChange,
 }: PlaybackBarProps) {
   const inProgress = status === "running" || status === "paused";
+  const showMain = part !== "extra";
+  const showExtra = part !== "main";
 
   return (
-    <div className={styles.bar}>
+    <div className={styles.bar} data-part={part}>
       <div className={styles.buttons}>
-        <Button variant="primary" onClick={onGenerate}>
-          Gerar
-        </Button>
-        <Button
-          onClick={status === "running" ? onPause : onResume}
-          disabled={!inProgress}
-          aria-keyshortcuts="Space"
-        >
-          {status === "running" ? "Pausar" : "Continuar"}
-        </Button>
-        {/* Com a animação rodando, o passo manual não faria diferença: é
-            preciso pausar antes. */}
-        <Button
-          onClick={onStep}
-          disabled={status !== "paused"}
-          aria-keyshortcuts="ArrowRight"
-        >
-          Passo
-        </Button>
-        <Button onClick={onFinish} disabled={!inProgress}>
-          Finalizar
-        </Button>
-        <Button
-          onClick={onReset}
-          disabled={status === "idle"}
-          aria-keyshortcuts="R"
-        >
-          Reiniciar
-        </Button>
+        {showMain && (
+          <>
+            <Button
+              variant="primary"
+              className={styles.generate}
+              onClick={onGenerate}
+            >
+              Gerar
+            </Button>
+            <Button
+              onClick={status === "running" ? onPause : onResume}
+              disabled={!inProgress}
+              aria-keyshortcuts="Space"
+            >
+              {status === "running" ? "Pausar" : "Continuar"}
+            </Button>
+            {/* Com a animação rodando, o passo manual não faria diferença: é
+                preciso pausar antes. */}
+            <Button
+              onClick={onStep}
+              disabled={status !== "paused"}
+              aria-keyshortcuts="ArrowRight"
+            >
+              Passo
+            </Button>
+          </>
+        )}
+        {showExtra && (
+          <>
+            <Button onClick={onFinish} disabled={!inProgress}>
+              Finalizar
+            </Button>
+            <Button
+              onClick={onReset}
+              disabled={status === "idle"}
+              aria-keyshortcuts="R"
+            >
+              Reiniciar
+            </Button>
+          </>
+        )}
       </div>
 
-      <div className={styles.speed}>
-        <label htmlFor="speed">Velocidade</label>
-        <input
-          id="speed"
-          type="range"
-          min={0}
-          max={SPEED_LEVELS.length - 1}
-          step={1}
-          value={closestLevel(speed)}
-          onChange={(event) =>
-            onSpeedChange(SPEED_LEVELS[event.target.valueAsNumber] ?? speed)
-          }
-        />
-        <output htmlFor="speed">{formatSpeed(speed)}</output>
-      </div>
-
-      <p className={styles.shortcuts}>
-        Atalhos: <kbd>Espaço</kbd> gera, pausa ou continua · <kbd>→</kbd> avança
-        um passo na pausa · <kbd>R</kbd> reinicia
-      </p>
+      {showExtra && (
+        <div className={styles.speed}>
+          <label htmlFor="speed">Velocidade</label>
+          <input
+            id="speed"
+            type="range"
+            min={0}
+            max={SPEED_LEVELS.length - 1}
+            step={1}
+            value={closestLevel(speed)}
+            aria-valuetext={formatSpeed(speed)}
+            onChange={(event) =>
+              onSpeedChange(SPEED_LEVELS[event.target.valueAsNumber] ?? speed)
+            }
+          />
+          <output htmlFor="speed">{formatSpeed(speed)}</output>
+        </div>
+      )}
     </div>
   );
 }
