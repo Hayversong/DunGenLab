@@ -46,3 +46,24 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Registrar a cor clara da moldura como cor de verdade deixa o navegador
+   fazer a transição entre duas cores (o hover do botão desliza do branco
+   para o ouro em vez de trocar de uma vez). O valor inicial é o mesmo de
+   --win-border, que era o padrão de antes. */
+@property --frame-light {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e8e4d4;
+}
+
+/* Quem pede menos movimento não vê transição nem animação nenhuma. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

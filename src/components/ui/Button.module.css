@@ -5,15 +5,24 @@
   background: var(--win-track);
   border: 0;
   cursor: pointer;
+  /* A volta do "afundar" e a troca de cor da moldura deslizam em vez de
+     saltar. */
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    --frame-light var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
 }
 
 .button:hover:not(:disabled) {
   --frame-light: var(--gold);
 }
 
-/* O botão "afunda" um degrau ao ser apertado. */
+/* O botão "afunda" um degrau ao ser apertado. A descida é quase imediata,
+   para o toque parecer firme; a subida usa a transição mais calma acima. */
 .button:active:not(:disabled) {
   transform: translateY(4px);
+  transition-duration: var(--dur-press);
 }
 
 .button:disabled {

@@ -12,7 +12,7 @@ interface DialogBoxProps {
 }
 
 // Milissegundos entre uma letra e outra.
-const TYPE_INTERVAL = 18;
+const TYPE_INTERVAL = 24;
 
 interface TypedTextProps {
   text: string;
@@ -22,12 +22,24 @@ interface TypedTextProps {
 function TypedText({ text }: TypedTextProps) {
   const [count, setCount] = useState(0);
   const done = count >= text.length;
+  const length = text.length;
 
   useEffect(() => {
     if (done) return;
-    const timer = setInterval(() => setCount((c) => c + 1), TYPE_INTERVAL);
-    return () => clearInterval(timer);
-  }, [done]);
+    // A contagem sai do tempo passado, não de um contador por tique: as
+    // letras chegam junto com os quadros da tela, num ritmo constante, sem
+    // tropeços quando um tique atrasa.
+    const start = performance.now();
+    let frameId = requestAnimationFrame(function tick(now) {
+      const next = Math.min(
+        length,
+        Math.floor((now - start) / TYPE_INTERVAL) + 1,
+      );
+      setCount((c) => Math.max(c, next));
+      if (next < length) frameId = requestAnimationFrame(tick);
+    });
+    return () => cancelAnimationFrame(frameId);
+  }, [done, length]);
 
   return (
     // O clique vale na caixa inteira: no começo ainda não há letra nenhuma

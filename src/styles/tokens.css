@@ -62,4 +62,15 @@
   /* A fonte de título é desenhada em uma grade de 8 px: só fica nítida em
      múltiplos de 8. Em 12 px os pixels saem desiguais e os acentos borram. */
   --fs-title: 16px;
+
+  /* Movimento. O que chega desacelera (entra rápido e assenta devagar), o
+     que sai acelera. Respostas a um toque ficam entre 150 e 300 ms: abaixo
+     disso parece um salto, acima parece lentidão. */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.8, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --dur-press: 60ms;
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-calm: 1600ms;
 }

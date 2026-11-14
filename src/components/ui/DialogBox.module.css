@@ -20,9 +20,12 @@
 
 .typed {
   cursor: pointer;
+  /* Cada texto novo chega com um leve fade, sem piscar a caixa. */
+  animation: appear var(--dur-base) var(--ease-out);
 }
 
-/* Marca de "fim do texto", que pisca devagar depois da última letra. */
+/* Marca de "fim do texto". Em vez de piscar seco, ela "respira": clareia e
+   escurece devagar, sem sumir de todo, para não chamar o olho o tempo todo. */
 .typed[data-done="true"]::after {
   display: inline-block;
   width: 8px;
@@ -30,11 +33,17 @@
   margin-left: var(--space-2);
   content: "";
   background: var(--gold);
-  animation: blink 1s steps(1) infinite;
+  animation: breathe var(--dur-calm) var(--ease-in-out) infinite alternate;
 }
 
-@keyframes blink {
-  50% {
+@keyframes appear {
+  from {
     opacity: 0;
+  }
+}
+
+@keyframes breathe {
+  to {
+    opacity: 0.25;
   }
 }
