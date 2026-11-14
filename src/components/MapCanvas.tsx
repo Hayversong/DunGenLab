@@ -1,10 +1,16 @@
 import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
 import type { Grid, Point } from "../core/types";
+import { useBlink } from "../hooks/useBlink";
 import { useElementSize } from "../hooks/useElementSize";
-import { drawGrid } from "../render/canvasRenderer";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import type { MarkerKind } from "../render/canvasRenderer";
+import { createMapPainter } from "../render/mapPainter";
+import type { MapPainter } from "../render/mapPainter";
 import { tileSizeFor } from "../render/scale";
 import type { Zoom } from "../render/scale";
+import { createTileAtlas } from "../render/tileAtlas";
+import type { TileAtlas } from "../render/tileAtlas";
 import styles from "./MapCanvas.module.css";
 
 interface MapCanvasProps {
@@ -13,10 +19,14 @@ interface MapCanvasProps {
   // O grid é mutado no lugar; este número muda quando é hora de redesenhar.
   version: number;
   zoom: Zoom;
+  // Como marcar os tiles do passo atual.
+  marker: MarkerKind;
 }
 
 interface PaintRequest {
   highlight: readonly Point[];
+  marker: MarkerKind;
+  blinkOn: boolean;
   zoom: Zoom;
   areaWidth: number;
   areaHeight: number;
@@ -24,15 +34,33 @@ interface PaintRequest {
 
 const NO_HIGHLIGHT: readonly Point[] = [];
 
+// Milissegundos entre uma piscada e outra do cursor.
+const BLINK_INTERVAL = 450;
+
+interface Drawing {
+  painter: MapPainter;
+  atlas: TileAtlas | null;
+  atlasTileSize: number;
+}
+
 export function MapCanvas({
   gridRef,
   highlight = NO_HIGHLIGHT,
   version,
   zoom,
+  marker,
 }: MapCanvasProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const area = useElementSize(viewportRef);
+  const reducedMotion = usePrefersReducedMotion();
+  // Só pisca se há o que marcar; quem pediu menos movimento vê o cursor fixo.
+  const blinkOn = useBlink(
+    highlight.length > 0 && !reducedMotion,
+    BLINK_INTERVAL,
+  );
+  // O que já está desenhado e o atlas do tamanho de tile em uso.
+  const drawingRef = useRef<Drawing | null>(null);
 
   // O que desenhar no próximo quadro, e o pedido de quadro já feito (0 se
   // não há). Vários motivos para redesenhar podem chegar no mesmo quadro
@@ -43,6 +71,8 @@ export function MapCanvas({
   useEffect(() => {
     requestRef.current = {
       highlight,
+      marker,
+      blinkOn,
       zoom,
       areaWidth: area.width,
       areaHeight: area.height,
@@ -74,6 +104,11 @@ export function MapCanvas({
       );
       const width = grid.width * tileSize;
       const height = grid.height * tileSize;
+      const drawing = (drawingRef.current ??= {
+        painter: createMapPainter(),
+        atlas: null,
+        atlasTileSize: 0,
+      });
       // Mexer em width/height apaga o canvas, então só quando o tamanho muda.
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
@@ -82,11 +117,33 @@ export function MapCanvas({
         // tamanho equivalente, sem esticar nem encolher.
         canvas.style.width = `${width / ratio}px`;
         canvas.style.height = `${height / ratio}px`;
+        drawing.painter.reset();
+      }
+      // O atlas é refeito só quando o tamanho do tile muda.
+      if (drawing.atlasTileSize !== tileSize) {
+        drawing.atlas = createTileAtlas(tileSize);
+        drawing.atlasTileSize = tileSize;
       }
 
-      drawGrid(ctx, grid, tileSize, request.highlight);
+      drawing.painter.paint(ctx, {
+        grid,
+        tileSize,
+        atlas: drawing.atlas,
+        highlight: request.highlight,
+        marker: request.marker,
+        blinkOn: request.blinkOn,
+      });
     });
-  }, [gridRef, highlight, version, zoom, area.width, area.height]);
+  }, [
+    gridRef,
+    highlight,
+    version,
+    zoom,
+    marker,
+    blinkOn,
+    area.width,
+    area.height,
+  ]);
 
   useEffect(
     () => () => {

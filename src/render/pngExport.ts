@@ -1,5 +1,6 @@
 import type { Grid } from "../core/types";
 import { canvasSize, drawGrid } from "./canvasRenderer";
+import { createTileAtlas } from "./tileAtlas";
 
 // Tamanhos de tile oferecidos na exportação, em pixels.
 export const PNG_TILE_SIZES = [4, 8, 16] as const;
@@ -21,7 +22,9 @@ export function renderPngBlob(
   if (!ctx) {
     return Promise.reject(new Error("Não foi possível criar a imagem."));
   }
-  drawGrid(ctx, grid, tileSize);
+  // A imagem sai com a mesma textura da tela; no menor tamanho, em cor
+  // chapada, porque a textura não cabe.
+  drawGrid(ctx, grid, tileSize, createTileAtlas(tileSize));
 
   // toBlob entrega o resultado por callback; a Promise deixa usar await.
   return new Promise((resolve, reject) => {
