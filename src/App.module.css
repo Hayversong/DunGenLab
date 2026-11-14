@@ -135,7 +135,7 @@
       "header header"
       "map side"
       "dialog side";
-    grid-template-columns: minmax(0, 1fr) 312px;
+    grid-template-columns: minmax(0, 1fr) 336px;
   }
 
   .brand p {

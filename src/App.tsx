@@ -9,6 +9,7 @@ import type { MapSize } from "./components/ParamsPanel";
 import { PlaybackBar } from "./components/PlaybackBar";
 import { Button } from "./components/ui/Button";
 import { DialogBox } from "./components/ui/DialogBox";
+import { Legend } from "./components/ui/Legend";
 import { Modal } from "./components/ui/Modal";
 import { Tabs } from "./components/ui/Tabs";
 import { Window } from "./components/ui/Window";
@@ -46,6 +47,9 @@ const STATUS_TEXT: Record<GenerationStatus, string> = {
   paused: "Em pausa.",
   done: "Concluído.",
 };
+
+// Algoritmos em que o destaque do passo é alguém andando pelo mapa.
+const HERO_GENERATORS: ReadonlySet<string> = new Set(["drunkards-walk"]);
 
 // Única fonte de acaso fora do Rng: só escolhe um texto de seed novo.
 function randomSeed(): string {
@@ -283,6 +287,9 @@ function App() {
       {!display && !compact && (
         <aside className={styles.commands} aria-label="Comandos">
           <Window title="Comandos">{commands}</Window>
+          <Window title="Legenda" className={styles.grow}>
+            <Legend />
+          </Window>
         </aside>
       )}
 
@@ -293,6 +300,7 @@ function App() {
             highlight={generation.lastStep?.highlight}
             version={generation.version}
             zoom={zoom}
+            marker={HERO_GENERATORS.has(generator.id) ? "hero" : "cursor"}
           />
         </section>
       </main>
@@ -325,7 +333,16 @@ function App() {
             tabs={[
               { id: "commands", label: "Comandos", content: commands },
               { id: "params", label: "Parâmetros", content: parameters },
-              { id: "status", label: "Status", content: status },
+              {
+                id: "status",
+                label: "Status",
+                content: (
+                  <>
+                    {status}
+                    <Legend />
+                  </>
+                ),
+              },
             ]}
           />
         </aside>

@@ -9,6 +9,8 @@
   display: flex;
   gap: var(--space-3);
   padding: var(--frame-sm);
+  /* Os rótulos são curtos, mas em coluna estreita cada pixel conta. */
+  white-space: nowrap;
 }
 
 .tab {
@@ -16,7 +18,7 @@
   flex: 1;
   min-width: 0;
   min-height: var(--touch);
-  padding: var(--space-1);
+  padding: 0;
   color: var(--text-soft);
   background: var(--win-track);
   border: 0;
