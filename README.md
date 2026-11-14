@@ -9,6 +9,12 @@ resultado e exportar o mapa em PNG ou JSON.
 
 ![Tela do DunGenLab com um mapa gerado por BSP](media/tela.png)
 
+A interface tem cara de menu de RPG de 8 e 16 bits: janelas com moldura em
+degraus, fontes de pixel e um mapa com tiles desenhados em código. No celular
+as janelas viram abas e o mapa fica no topo.
+
+<img src="media/tela-celular.png" alt="DunGenLab em tela de celular, com o mapa no topo e os painéis em abas" width="260" />
+
 ## O que dá para fazer
 
 - Gerar mapas com três algoritmos: Drunkard's Walk, Cellular Automata e BSP.
@@ -21,10 +27,14 @@ resultado e exportar o mapa em PNG ou JSON.
   tamanho da maior região, número de salas (BSP) e tempo de geração.
 - Exportar em PNG (4, 8 ou 16 pixels por tile) e em JSON, e importar o JSON de
   volta.
+- Ver o mapa sempre em escala inteira, ajustado ao espaço livre da tela, ou
+  escolher o zoom (1x, 2x, 3x) e rolar.
+- Esconder os painéis com o modo exibição, para mostrar só o mapa.
 
 Atalhos de teclado: `Espaço` gera, pausa ou continua; `→` avança um passo
-quando a animação está pausada; `R` reinicia. Eles não disparam enquanto o
-foco está no campo da seed.
+quando a animação está pausada; `R` reinicia; `F` liga e desliga o modo
+exibição. Na lista de algoritmos, as setas movem o cursor e `Enter` confirma.
+Os atalhos não disparam enquanto o foco está no campo da seed.
 
 ## Os algoritmos
 
@@ -77,7 +87,7 @@ npm run dev
 Outros comandos:
 
 ```bash
-npm run test     # testes do núcleo (Vitest)
+npm run test     # testes do núcleo e do renderer (Vitest)
 npm run lint     # ESLint
 npm run build    # checagem de tipos + build de produção em dist/
 npm run preview  # serve o build de produção localmente
@@ -121,6 +131,39 @@ tipos, dimensões e o conteúdo dos tiles, e mostra uma mensagem na tela em vez
 de quebrar. Os parâmetros também são presos aos limites de cada algoritmo
 antes de qualquer geração.
 
+**Escala inteira e pixel art.** O tamanho do tile na tela é sempre um número
+inteiro de pixels do aparelho: o maior com que o mapa cabe no espaço livre,
+medido por um `ResizeObserver`. Com tile fracionário, uns quadrados sairiam
+maiores que outros e a textura ficaria torta. A sobra em volta do mapa fica na
+cor da rocha.
+
+**Tiles desenhados em código.** Não há arquivo de imagem. Cada tile é uma
+grade de 8 × 8 pixels gerada por uma função, e todos são pintados uma vez em
+um canvas fora da tela (o atlas); desenhar o mapa é copiar pedaços dele. A
+variação entre tiles vizinhos vem de um hash da posição, não de sorteio, então
+a mesma seed gera o mesmo mapa com a mesma textura. As paredes escolhem a arte
+olhando os vizinhos (tijolos quando há chão logo abaixo), e a cada quadro só
+os tiles que mudaram são redesenhados.
+
+**Visual em tokens.** Todas as cores, espaços e fontes ficam em
+`src/styles/tokens.css`. Um teste lê esse arquivo e confere que cada par de
+texto e fundo tem contraste de pelo menos 4,5 (WCAG AA). As animações param
+para quem pediu menos movimento ao sistema.
+
+## Segurança do site publicado
+
+O site é estático e não faz nenhuma conexão depois de carregado: fontes,
+scripts e estilos vêm do próprio endereço.
+
+- `vercel.json` e `public/_headers` trazem os cabeçalhos de segurança, entre
+  eles uma Content-Security-Policy que só aceita recursos do próprio site e
+  proíbe que a página seja embutida em outra. O primeiro vale na Vercel; o
+  segundo, na Netlify e na Cloudflare Pages.
+- O build também grava a política em uma meta tag, para hospedagens que não
+  deixam configurar cabeçalhos (GitHub Pages).
+- O arquivo importado é tratado como dado não confiável: tamanho limitado,
+  cada campo validado, textos com comprimento máximo.
+
 ## Estrutura de pastas
 
 ```
@@ -135,17 +178,31 @@ src/
 │  ├─ export.ts             # toJSON / fromJSON com validação
 │  └─ generators/           # drunkardsWalk, cellularAutomata, bsp e o registro
 ├─ render/
-│  ├─ canvasRenderer.ts     # desenha o grid no canvas
+│  ├─ scale.ts              # escala inteira do mapa
+│  ├─ tileHash.ts           # hash da posição, para variar a textura
+│  ├─ tileArt.ts            # a arte dos tiles, em código
+│  ├─ tileAtlas.ts          # atlas em canvas fora da tela
+│  ├─ autoTile.ts           # arte da parede conforme os vizinhos
+│  ├─ canvasRenderer.ts     # desenha tiles e marcadores
+│  ├─ mapPainter.ts         # redesenha só o que mudou
 │  ├─ pngExport.ts          # gera o PNG em um canvas fora da tela
 │  └─ download.ts           # dispara o download de um arquivo
 ├─ hooks/
 │  ├─ useGeneration.ts      # controla a animação: play, pause, passo, velocidade
-│  └─ useKeyboardShortcuts.ts
-├─ components/              # MapCanvas, PlaybackBar, ControlPanel, ParamField,
-│                           # MetricsPanel, ExportPanel
-├─ App.tsx
+│  ├─ useKeyboardShortcuts.ts
+│  ├─ useElementSize.ts     # tamanho de um elemento (ResizeObserver)
+│  └─ useMediaQuery.ts, usePrefersReducedMotion.ts, useBlink.ts
+├─ styles/
+│  ├─ tokens.css            # cores, espaços, fontes e tempos
+│  ├─ pixel.css             # moldura em degraus e classes globais
+│  └─ contrast.ts           # cálculo de contraste (WCAG)
+├─ components/
+│  ├─ ui/                   # Window, Button, MenuList, Slider, StatBar,
+│  │                        # DialogBox, Tabs, Modal, Legend
+│  └─ ...                   # MapCanvas e o conteúdo de cada janela
+├─ App.tsx                  # a grade da tela
 └─ main.tsx
-tests/                      # testes do núcleo e do renderer (Vitest)
+tests/                      # testes das funções puras (Vitest)
 media/                      # imagens deste README
 ```
 
@@ -156,5 +213,7 @@ na interface.
 
 ## Stack
 
-Vite, React, TypeScript em modo `strict`, Canvas 2D, Vitest, ESLint e Prettier.
-Sem bibliotecas de interface e sem dependências de runtime além do React.
+Vite, React, TypeScript em modo `strict`, Canvas 2D, CSS Modules, Vitest,
+ESLint e Prettier. Sem bibliotecas de interface: as dependências de runtime
+são o React e duas fontes de pixel de licença livre (Press Start 2P e
+DotGothic16, SIL OFL 1.1), servidas pelo próprio site.
