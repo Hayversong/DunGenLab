@@ -1,0 +1,40 @@
+.dialog {
+  --frame-inner: var(--win-inner);
+  /* Duas linhas de texto, para a caixa não mudar de altura a cada passo. */
+  display: grid;
+  min-height: calc(var(--lh-body) * 2 + var(--space-4) * 2);
+  color: var(--text);
+  background: linear-gradient(
+    180deg,
+    var(--win-1) 0 50%,
+    var(--win-3) 50% 100%
+  );
+}
+
+.text,
+.typed {
+  margin: 0;
+  padding: var(--space-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.typed {
+  cursor: pointer;
+}
+
+/* Marca de "fim do texto", que pisca devagar depois da última letra. */
+.typed[data-done="true"]::after {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: var(--space-2);
+  content: "";
+  background: var(--gold);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

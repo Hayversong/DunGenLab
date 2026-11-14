@@ -1,0 +1,33 @@
+.window {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+/* Degradê em três faixas duras: a cor muda em degrau, sem transição suave. */
+.blue {
+  --frame-inner: var(--win-inner);
+  color: var(--text);
+  background: linear-gradient(
+    180deg,
+    var(--win-1) 0 34%,
+    var(--win-2) 34% 67%,
+    var(--win-3) 67% 100%
+  );
+}
+
+.parchment {
+  --frame-light: var(--parch-border);
+  color: var(--parch-text);
+  background: var(--parch);
+}
+
+.title {
+  color: var(--gold);
+}
+
+.parchment .title {
+  color: var(--parch-soft);
+}

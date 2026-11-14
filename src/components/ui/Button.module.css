@@ -1,0 +1,40 @@
+.button {
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
+  color: var(--text);
+  background: var(--win-track);
+  border: 0;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  --frame-light: var(--gold);
+}
+
+/* O botão "afunda" um degrau ao ser apertado. */
+.button:active:not(:disabled) {
+  transform: translateY(4px);
+}
+
+.button:disabled {
+  --frame-light: var(--text-disabled);
+  color: var(--text-disabled);
+  background: var(--win-track);
+  cursor: not-allowed;
+}
+
+.primary {
+  --frame-light: var(--gold);
+  color: var(--ink-on-gold);
+  background: var(--gold);
+}
+
+.primary:hover:not(:disabled) {
+  --frame-light: var(--win-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+}

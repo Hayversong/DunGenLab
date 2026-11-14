@@ -1,0 +1,44 @@
+.stat {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-1) var(--space-2);
+}
+
+.label {
+  color: var(--text-soft);
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* A barra é uma fileira de blocos, não um retângulo contínuo. */
+.bar {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(var(--blocks), 1fr);
+  gap: 4px;
+  height: 16px;
+  padding: 4px;
+  background: var(--win-track);
+}
+
+.bar span[data-on="true"] {
+  background: var(--fill);
+}
+
+.gold {
+  --fill: var(--gold);
+}
+
+.green {
+  --fill: var(--green-light);
+}
+
+.red {
+  --fill: var(--red-light);
+}
+
+.teal {
+  --fill: var(--teal-light);
+}
