@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ControlPanel } from "./components/ControlPanel";
 import { ExportPanel } from "./components/ExportPanel";
 import { HelpContent } from "./components/HelpContent";
@@ -98,23 +98,34 @@ function App() {
   // Cada atalho faz o mesmo que o botão correspondente e respeita os mesmos
   // estados em que o botão fica desabilitado.
   // Com uma janela aberta por cima, as teclas são dela.
-  useKeyboardShortcuts({
-    toggle: () => {
-      if (modal !== null) return;
-      if (generation.status === "running") generation.pause();
-      else if (generation.status === "paused") generation.resume();
-      else handleGenerate();
+  useKeyboardShortcuts(
+    {
+      toggle: () => {
+        if (generation.status === "running") generation.pause();
+        else if (generation.status === "paused") generation.resume();
+        else handleGenerate();
+      },
+      step: () => {
+        if (generation.status === "paused") generation.step();
+      },
+      reset: () => {
+        if (generation.status !== "idle") handleReset();
+      },
+      display: () => setDisplay((current) => !current),
     },
-    step: () => {
-      if (modal === null && generation.status === "paused") generation.step();
-    },
-    reset: () => {
-      if (modal === null && generation.status !== "idle") handleReset();
-    },
-    display: () => {
-      if (modal === null) setDisplay((current) => !current);
-    },
-  });
+    modal === null,
+  );
+
+  // Trocar de modo desmonta o botão que tinha o foco. Sem devolvê-lo, quem
+  // navega pelo teclado voltaria para o começo da página.
+  const exitButtonRef = useRef<HTMLButtonElement>(null);
+  const displayButtonRef = useRef<HTMLButtonElement>(null);
+  const wasDisplayRef = useRef(false);
+  useEffect(() => {
+    if (display) exitButtonRef.current?.focus();
+    else if (wasDisplayRef.current) displayButtonRef.current?.focus();
+    wasDisplayRef.current = display;
+  }, [display]);
 
   function handleGeneratorChange(id: string) {
     const next = getGenerator(id);
@@ -182,6 +193,8 @@ function App() {
       setSize(clampMapSize(grid.width, grid.height));
       generation.setSpeed(imported.defaultSpeed);
       generation.load(grid, { ...meta, params: fitted });
+      // Fecha a janela: o mapa importado é a confirmação de que deu certo.
+      setModal(null);
     } catch (error) {
       setExportError(`Não foi possível importar: ${errorMessage(error)}`);
     }
@@ -245,7 +258,11 @@ function App() {
     <div className={styles.app} data-display={display}>
       {display ? (
         <div className={styles.exit}>
-          <Button onClick={() => setDisplay(false)} aria-keyshortcuts="F">
+          <Button
+            ref={exitButtonRef}
+            onClick={() => setDisplay(false)}
+            aria-keyshortcuts="F"
+          >
             Sair da exibição
           </Button>
         </div>
@@ -275,9 +292,21 @@ function App() {
                 </option>
               ))}
             </select>
-            <Button onClick={() => setModal("file")}>Arquivo</Button>
+            <Button
+              onClick={() => {
+                // Um erro de uma tentativa anterior não deve reaparecer.
+                setExportError(null);
+                setModal("file");
+              }}
+            >
+              Arquivo
+            </Button>
             <Button onClick={() => setModal("help")}>Ajuda</Button>
-            <Button onClick={() => setDisplay(true)} aria-keyshortcuts="F">
+            <Button
+              ref={displayButtonRef}
+              onClick={() => setDisplay(true)}
+              aria-keyshortcuts="F"
+            >
               Exibição
             </Button>
           </div>
@@ -300,6 +329,7 @@ function App() {
             highlight={generation.lastStep?.highlight}
             version={generation.version}
             zoom={zoom}
+            fill={display}
             marker={HERO_GENERATORS.has(generator.id) ? "hero" : "cursor"}
           />
         </section>

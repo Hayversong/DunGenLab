@@ -31,9 +31,18 @@ export function Modal({ open, onClose, title, variant, children }: ModalProps) {
       aria-label={title}
       // Dispara tanto no Esc quanto no botão Fechar.
       onClose={onClose}
-      // Clique fora da janela (no fundo escurecido) também fecha.
+      // Clique no fundo escurecido também fecha. A conta é pela posição do
+      // clique: a moldura é desenhada fora da janela, e soltar ali um arrasto
+      // de seleção de texto não deve fechar nada.
       onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target !== event.currentTarget) return;
+        const box = event.currentTarget.getBoundingClientRect();
+        const inside =
+          event.clientX >= box.left &&
+          event.clientX <= box.right &&
+          event.clientY >= box.top &&
+          event.clientY <= box.bottom;
+        if (!inside) onClose();
       }}
     >
       <Window title={title} variant={variant}>

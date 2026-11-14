@@ -77,7 +77,12 @@ export function shortcutFor(
 
 export type ShortcutHandlers = Record<ShortcutAction, () => void>;
 
-export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
+// `enabled` falso desliga os atalhos sem mexer nas teclas: com uma janela
+// aberta por cima, o Espaço precisa continuar rolando o conteúdo dela.
+export function useKeyboardShortcuts(
+  handlers: ShortcutHandlers,
+  enabled: boolean = true,
+): void {
   // As funções mudam a cada renderização; guardá-las em uma ref deixa o
   // ouvinte de teclado ser registrado uma vez só.
   const handlersRef = useRef(handlers);
@@ -86,6 +91,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
   });
 
   useEffect(() => {
+    if (!enabled) return;
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target instanceof HTMLElement ? event.target : null;
       const action = shortcutFor(
@@ -104,5 +110,5 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [enabled]);
 }

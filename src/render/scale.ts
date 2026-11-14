@@ -1,7 +1,7 @@
 // Lado do tile base da arte, em pixels. O zoom manual é um múltiplo dele.
 export const BASE_TILE = 8;
 
-// Maior tile que a tela usa, em pixels do aparelho.
+// Maior tile que a tela usa, em pixels de CSS.
 export const MAX_TILE = 64;
 
 // Teto de pixels do canvas do mapa: abaixo do limite dos navegadores de
@@ -55,6 +55,8 @@ export function tileSizeFor(
       Math.floor(area.height * ratio),
       cols,
       rows,
+      // O teto vale em pixels de CSS: em tela densa ele cresce junto.
+      Math.round(MAX_TILE * ratio),
     );
   }
   const wanted = Math.max(1, Math.round(BASE_TILE * zoom * ratio));

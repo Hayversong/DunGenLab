@@ -21,6 +21,8 @@ interface MapCanvasProps {
   zoom: Zoom;
   // Como marcar os tiles do passo atual.
   marker: MarkerKind;
+  // true quando o mapa deve ocupar toda a área, em qualquer tamanho de tela.
+  fill?: boolean;
 }
 
 interface PaintRequest {
@@ -49,6 +51,7 @@ export function MapCanvas({
   version,
   zoom,
   marker,
+  fill = false,
 }: MapCanvasProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -162,6 +165,7 @@ export function MapCanvas({
       ref={viewportRef}
       className={styles.viewport}
       data-scroll={scrollable}
+      data-fill={fill}
       // Com zoom manual o mapa pode passar da área: ela rola, e precisa
       // receber o foco para rolar pelo teclado.
       tabIndex={scrollable ? 0 : undefined}
