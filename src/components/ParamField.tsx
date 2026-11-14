@@ -1,5 +1,5 @@
 import type { ParamDef } from "../core/types";
-import styles from "./ParamField.module.css";
+import { Slider } from "./ui/Slider";
 
 interface ParamFieldProps {
   def: ParamDef;
@@ -17,25 +17,20 @@ function decimalsOf(step: number): number {
 function formatParam(def: ParamDef, value: number): string {
   return def.type === "int"
     ? String(Math.round(value))
-    : value.toFixed(decimalsOf(def.step));
+    : value.toFixed(decimalsOf(def.step)).replace(".", ",");
 }
 
 export function ParamField({ def, value, onChange }: ParamFieldProps) {
-  const id = `param-${def.key}`;
-
   return (
-    <div className={styles.field}>
-      <label htmlFor={id}>{def.label}</label>
-      <output htmlFor={id}>{formatParam(def, value)}</output>
-      <input
-        id={id}
-        type="range"
-        min={def.min}
-        max={def.max}
-        step={def.step}
-        value={value}
-        onChange={(event) => onChange(def.key, event.target.valueAsNumber)}
-      />
-    </div>
+    <Slider
+      id={`param-${def.key}`}
+      label={def.label}
+      value={value}
+      min={def.min}
+      max={def.max}
+      step={def.step}
+      text={formatParam(def, value)}
+      onChange={(next) => onChange(def.key, next)}
+    />
   );
 }

@@ -1,6 +1,7 @@
 import type { GenerationStatus } from "../hooks/useGeneration";
 import { SPEED_LEVELS } from "../hooks/useGeneration";
 import { Button } from "./ui/Button";
+import { Slider } from "./ui/Slider";
 import styles from "./PlaybackBar.module.css";
 
 interface PlaybackBarProps {
@@ -30,10 +31,8 @@ function closestLevel(speed: number): number {
 }
 
 function formatSpeed(speed: number): string {
-  if (speed >= 1) {
-    return speed === 1 ? "1 passo/quadro" : `${speed} passos/quadro`;
-  }
-  return `1 passo/${Math.round(1 / speed)} quadros`;
+  // Curto de propósito: divide a linha com o rótulo "Velocidade".
+  return speed >= 1 ? `${speed}x` : `1/${Math.round(1 / speed)}x`;
 }
 
 export function PlaybackBar({
@@ -99,22 +98,16 @@ export function PlaybackBar({
       </div>
 
       {showExtra && (
-        <div className={styles.speed}>
-          <label htmlFor="speed">Velocidade</label>
-          <input
-            id="speed"
-            type="range"
-            min={0}
-            max={SPEED_LEVELS.length - 1}
-            step={1}
-            value={closestLevel(speed)}
-            aria-valuetext={formatSpeed(speed)}
-            onChange={(event) =>
-              onSpeedChange(SPEED_LEVELS[event.target.valueAsNumber] ?? speed)
-            }
-          />
-          <output htmlFor="speed">{formatSpeed(speed)}</output>
-        </div>
+        <Slider
+          id="speed"
+          label="Velocidade"
+          min={0}
+          max={SPEED_LEVELS.length - 1}
+          step={1}
+          value={closestLevel(speed)}
+          text={formatSpeed(speed)}
+          onChange={(level) => onSpeedChange(SPEED_LEVELS[level] ?? speed)}
+        />
       )}
     </div>
   );
