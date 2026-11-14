@@ -14,6 +14,16 @@ describe("shortcutFor", () => {
     expect(shortcutFor({ key: "ArrowRight" }, body)).toBe("step");
     expect(shortcutFor({ key: "r" }, body)).toBe("reset");
     expect(shortcutFor({ key: "R" }, body)).toBe("reset");
+    expect(shortcutFor({ key: "f" }, body)).toBe("display");
+    expect(shortcutFor({ key: "F" }, body)).toBe("display");
+  });
+
+  it("F não dispara em campo de texto, em lista nem com a tecla segurada", () => {
+    expect(shortcutFor({ key: "f" }, seedField)).toBeNull();
+    expect(shortcutFor({ key: "f" }, list)).toBeNull();
+    expect(shortcutFor({ key: "f", repeat: true }, body)).toBeNull();
+    expect(shortcutFor({ key: "f", ctrlKey: true }, body)).toBeNull();
+    expect(shortcutFor({ key: "f" }, button)).toBe("display");
   });
 
   it("funciona sem elemento em foco", () => {

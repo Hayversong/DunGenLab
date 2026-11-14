@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export type ShortcutAction = "toggle" | "step" | "reset";
+export type ShortcutAction = "toggle" | "step" | "reset" | "display";
 
 // Só o que a decisão precisa saber da tecla e de onde o foco está. Com isso a
 // regra pode ser testada sem navegador.
@@ -66,6 +66,10 @@ export function shortcutFor(
       // Em uma lista, digitar uma letra pula para a opção que começa com ela.
       if (tag === "select") return null;
       return key.repeat ? null : "reset";
+    case "f":
+    case "F":
+      if (tag === "select") return null;
+      return key.repeat ? null : "display";
     default:
       return null;
   }
