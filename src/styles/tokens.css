@@ -1,0 +1,65 @@
+/* Tokens de design: todo valor de cor, espaço e fonte do visual mora aqui.
+   Os componentes só usam as variáveis, nunca um valor solto. */
+:root {
+  /* Pedra: fundo geral e moldura do mapa. */
+  --stone-950: #100f0d;
+  --stone-900: #1b1a17;
+  --stone-800: #24221d;
+  --stone-700: #35322b;
+
+  /* Janela azul, em três faixas da mais clara para a mais escura. */
+  --win-1: #1f2f6b;
+  --win-2: #172559;
+  --win-3: #0f1a45;
+  --win-border: #e8e4d4;
+  --win-inner: #7f8fc4;
+  --win-track: #0a1233;
+
+  /* Texto sobre a janela azul e sobre a pedra. */
+  --text: #f1eddc;
+  --text-soft: #b9c3e6;
+  --text-disabled: #8f9ac4;
+  --text-stone: #a39c88;
+
+  /* Pergaminho: blocos de leitura. */
+  --parch: #e9dcb5;
+  --parch-text: #3a2a14;
+  --parch-soft: #5c4424;
+  --parch-border: #8a5a2b;
+
+  /* Ouro: cursor, seleção, foco e botão principal. */
+  --gold: #d8a93a;
+  --gold-shade: #8a5a2b;
+  --ink-on-gold: #24190a;
+
+  /* Cores de preenchimento (barras e tiles). Como texto, só as versões
+     claras passam no contraste sobre a janela azul. */
+  --green: #3f7a3a;
+  --red: #b23a30;
+  --teal: #2f6f73;
+  --green-light: #7fbf6a;
+  --red-light: #e8857a;
+  --teal-light: #7fc4c2;
+  --error-bg: #7a241d;
+
+  /* Tudo é múltiplo desta unidade, como em uma grade de pixels. */
+  --u: 4px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  /* As molduras em degraus são desenhadas para fora da caixa: 8 px na
+     janela e 4 px nos botões. Os espaçamentos entre elas contam com isso. */
+  --frame: 8px;
+  --frame-sm: 4px;
+  --touch: 44px;
+
+  --font-title: "Press Start 2P", monospace;
+  --font-body: "DotGothic16", monospace;
+  --fs-body: 16px;
+  --lh-body: 24px;
+  /* A fonte de título é desenhada em uma grade de 8 px: só fica nítida em
+     múltiplos de 8. Em 12 px os pixels saem desiguais e os acentos borram. */
+  --fs-title: 16px;
+}

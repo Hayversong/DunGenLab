@@ -1,19 +1,15 @@
-:root {
-  --bg: #0d0f14;
-  --surface: #171a22;
-  --border: #2a2f3b;
-  --text: #e6e2d6;
-  --text-muted: #9a978c;
-  --accent: #ff5d73;
+/* Só o subconjunto latino de cada fonte: cobre todos os acentos do
+   português e evita baixar os caracteres de outros alfabetos. */
+@import "@fontsource/press-start-2p/latin-400.css";
+@import "@fontsource/dotgothic16/latin-400.css";
+@import "./styles/tokens.css";
+@import "./styles/pixel.css";
 
+:root {
   color-scheme: dark;
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
 }
 
 *,
@@ -26,12 +22,18 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
-  background: var(--bg);
+  background: var(--stone-900);
+}
+
+button,
+input,
+select {
+  font: inherit;
 }
 
 /* Um só contorno de foco para o app inteiro. Aparece ao navegar pelo teclado
    e não ao clicar com o mouse. */
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 4px solid var(--gold);
+  outline-offset: 4px;
 }
