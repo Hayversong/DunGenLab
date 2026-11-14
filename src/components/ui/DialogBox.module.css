@@ -11,11 +11,23 @@
   );
 }
 
+/* O texto fantasma e o digitado ocupam a mesma célula, um sobre o outro. */
+.stack {
+  display: grid;
+}
+
 .text,
+.ghost,
 .typed {
-  margin: 0;
+  grid-area: 1 / 1;
+  min-width: 0;
   padding: var(--space-4);
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.ghost {
+  visibility: hidden;
 }
 
 .typed {

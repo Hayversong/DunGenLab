@@ -46,7 +46,6 @@ function TypedText({ text }: TypedTextProps) {
     // onde clicar.
     <div
       className={styles.typed}
-      aria-hidden="true"
       data-done={done}
       onClick={() => setCount(text.length)}
     >
@@ -65,16 +64,26 @@ export function DialogBox({
 
   return (
     <div className={`px-frame ${styles.dialog}`}>
-      {/* O leitor de tela recebe sempre o texto inteiro, de uma vez. */}
-      <p
-        className={typed ? "sr-only" : styles.text}
-        role="status"
-        aria-live={live}
-      >
-        {text}
+      {/* O leitor de tela recebe o texto inteiro, de uma vez. A região fica
+          sempre ligada e é o conteúdo que some durante a animação: trocar o
+          atributo junto com o texto faria alguns leitores não anunciarem. */}
+      <p className="sr-only" role="status">
+        {live === "off" ? "" : text}
       </p>
-      {/* A chave recria o componente a cada texto novo, zerando a contagem. */}
-      {typed && <TypedText key={text} text={text} />}
+      <div className={styles.stack} aria-hidden="true">
+        {typed ? (
+          <>
+            {/* O texto inteiro, invisível, reserva a altura final: a caixa
+                não cresce no meio da digitação e o mapa não é reescalado. */}
+            <div className={styles.ghost}>{text}</div>
+            {/* A chave recria o componente a cada texto novo, zerando a
+                contagem. */}
+            <TypedText key={text} text={text} />
+          </>
+        ) : (
+          <div className={styles.text}>{text}</div>
+        )}
+      </div>
     </div>
   );
 }

@@ -34,7 +34,11 @@ export function Slider({
   return (
     <div className={styles.slider}>
       <label htmlFor={id}>{label}</label>
-      <output htmlFor={id}>{text}</output>
+      {/* O valor já é lido pelo próprio controle (aria-valuetext); sem
+          esconder este, o leitor de tela o diria duas vezes. */}
+      <output htmlFor={id} aria-hidden="true">
+        {text}
+      </output>
       <input
         id={id}
         type="range"
