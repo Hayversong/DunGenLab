@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { MAX_SEED_LENGTH } from "../core/constants";
 import type { MapGenerator } from "../core/types";
 import { Button } from "./ui/Button";
 import { MenuList } from "./ui/MenuList";
@@ -14,9 +15,6 @@ interface ControlPanelProps {
   // Botões de reprodução, entre a lista de algoritmos e a seed.
   children?: ReactNode;
 }
-
-// Uma seed maior que isto não cabe no nome do arquivo exportado nem na tela.
-const MAX_SEED_LENGTH = 40;
 
 export function ControlPanel({
   generators,

@@ -176,6 +176,13 @@ describe("fromJSON com entrada inválida", () => {
     expect(() => fromJSON(fileWith({ generator: 7 }))).toThrow("generator");
     expect(() => fromJSON(fileWith({ generator: "" }))).toThrow("generator");
     expect(() => fromJSON(fileWith({ seed: 123 }))).toThrow("seed");
+    expect(() => fromJSON(fileWith({ seed: "s".repeat(41) }))).toThrow("seed");
+    expect(() => fromJSON(fileWith({ generator: "g".repeat(41) }))).toThrow(
+      "generator",
+    );
+    expect(fromJSON(fileWith({ seed: "s".repeat(40) })).meta.seed).toHaveLength(
+      40,
+    );
     expect(() => fromJSON(without("seed"))).toThrow("seed");
     expect(() => fromJSON(fileWith({ params: null }))).toThrow("params");
     expect(() => fromJSON(fileWith({ params: [1, 2] }))).toThrow("params");
@@ -222,6 +229,12 @@ describe("exportFileName", () => {
       "mapa-minha-seed-v2.json",
     );
     expect(exportFileName("caverna nº 3", "png")).toBe("mapa-caverna-nº-3.png");
+  });
+
+  it("corta uma seed comprida demais no nome do arquivo", () => {
+    expect(exportFileName("a".repeat(500), "json")).toBe(
+      `mapa-${"a".repeat(40)}.json`,
+    );
   });
 
   it("tem um nome para seed vazia", () => {

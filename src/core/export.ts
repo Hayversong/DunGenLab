@@ -1,4 +1,9 @@
-import { MAX_MAP_HEIGHT, MAX_MAP_WIDTH } from "./constants";
+import {
+  MAX_GENERATOR_ID_LENGTH,
+  MAX_MAP_HEIGHT,
+  MAX_MAP_WIDTH,
+  MAX_SEED_LENGTH,
+} from "./constants";
 import { createGrid } from "./grid";
 import type { GenParams, Grid } from "./types";
 
@@ -55,7 +60,9 @@ function readParams(value: unknown): GenParams {
   if (!isRecord(value)) {
     throw new Error('O campo "params" precisa ser um objeto.');
   }
-  const params: GenParams = {};
+  // Objeto sem protótipo: uma chave como "__proto__" vinda do arquivo vira
+  // uma propriedade comum, sem alcançar nada além deste objeto.
+  const params: GenParams = Object.create(null) as GenParams;
   for (const [key, item] of Object.entries(value)) {
     if (typeof item !== "number" || !Number.isFinite(item)) {
       throw new Error(`O parâmetro "${key}" precisa ser um número.`);
@@ -87,11 +94,17 @@ export function fromJSON(text: string): ImportedMap {
     );
   }
 
-  if (typeof data.generator !== "string" || data.generator === "") {
-    throw new Error('O campo "generator" precisa ser um texto.');
+  if (
+    typeof data.generator !== "string" ||
+    data.generator === "" ||
+    data.generator.length > MAX_GENERATOR_ID_LENGTH
+  ) {
+    throw new Error('O campo "generator" precisa ser um texto curto.');
   }
-  if (typeof data.seed !== "string") {
-    throw new Error('O campo "seed" precisa ser um texto.');
+  if (typeof data.seed !== "string" || data.seed.length > MAX_SEED_LENGTH) {
+    throw new Error(
+      `O campo "seed" precisa ser um texto de até ${MAX_SEED_LENGTH} caracteres.`,
+    );
   }
   const params = readParams(data.params);
 
@@ -129,6 +142,7 @@ export function fromJSON(text: string): ImportedMap {
 export function exportFileName(seed: string, extension: string): string {
   const safe = seed
     .trim()
+    .slice(0, MAX_SEED_LENGTH)
     .replace(/[^\p{L}\p{N}_-]+/gu, "-")
     .replace(/^-+|-+$/g, "");
   return `mapa-${safe === "" ? "sem-seed" : safe}.${extension}`;
