@@ -1,0 +1,21 @@
+.modal {
+  width: min(480px, calc(100vw - var(--space-6)));
+  max-height: calc(100dvh - var(--space-6));
+  /* Espaço para a moldura da janela, desenhada para fora dela. */
+  padding: var(--frame);
+  overflow-y: auto;
+  color: inherit;
+  background: none;
+  border: 0;
+}
+
+/* Escurece a tela atrás, em cor chapada. */
+.modal::backdrop {
+  background: rgb(16 15 13 / 0.75);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--frame-sm);
+}

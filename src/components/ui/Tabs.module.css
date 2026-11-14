@@ -1,0 +1,36 @@
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--frame-sm);
+}
+
+.tab {
+  --frame-light: var(--win-inner);
+  flex: 1;
+  min-width: 0;
+  min-height: var(--touch);
+  padding: var(--space-1);
+  color: var(--text-soft);
+  background: var(--win-track);
+  border: 0;
+  cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+  --frame-light: var(--win-border);
+  color: var(--ink-on-gold);
+  background: var(--gold);
+}
+
+/* Espaço para a moldura da janela, desenhada para fora dela. */
+.panel {
+  min-width: 0;
+  padding: var(--frame);
+}
