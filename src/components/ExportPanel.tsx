@@ -26,11 +26,12 @@ export function ExportPanel({
 
   return (
     <div className={styles.export}>
+      <h3 className={styles.heading}>Exportar</h3>
       <div className={styles.row}>
-        <label htmlFor="png-tile-size">Tamanho do tile no PNG</label>
+        <label htmlFor="png-tile-size">Tile no PNG</label>
         <select
           id="png-tile-size"
-          className="px-frame-sm"
+          className="px-frame-sm px-field"
           value={tileSize}
           onChange={(event) => {
             const chosen = PNG_TILE_SIZES.find(
@@ -62,6 +63,7 @@ export function ExportPanel({
         </p>
       )}
 
+      <h3 className={styles.heading}>Importar</h3>
       <div className={styles.buttons}>
         <Button onClick={() => fileInputRef.current?.click()}>
           Importar JSON

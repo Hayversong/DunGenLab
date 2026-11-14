@@ -52,15 +52,6 @@
   color: var(--text-stone);
 }
 
-.tools select {
-  --frame-light: var(--win-inner);
-  min-height: 36px;
-  padding: var(--space-1) var(--space-2);
-  color: var(--text);
-  background: var(--win-track);
-  border: 0;
-}
-
 .commands,
 .side {
   display: flex;
@@ -146,7 +137,6 @@
     gap: var(--space-3);
   }
 
-  .tools select,
   .tools button,
   .exit button {
     min-height: var(--touch);

@@ -29,6 +29,26 @@
     0 4px 0 0 var(--frame-light, var(--win-border));
 }
 
+/* Campo de texto e lista de escolha: fundo escuro e borda fina mais apagada
+   que a dos botões, para não parecer algo de apertar. Vai junto com
+   .px-frame-sm. */
+.px-field {
+  --frame-light: var(--win-inner);
+  min-width: 0;
+  min-height: 36px;
+  padding: var(--space-1) var(--space-2);
+  color: var(--text);
+  background: var(--win-track);
+  border: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 1099px) {
+  .px-field {
+    min-height: var(--touch);
+  }
+}
+
 .px-title {
   margin: 0;
   font-family: var(--font-title);

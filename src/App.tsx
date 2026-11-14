@@ -259,7 +259,7 @@ function App() {
             <span aria-hidden="true">Zoom</span>
             <select
               aria-label="Zoom do mapa"
-              className="px-frame-sm"
+              className="px-frame-sm px-field"
               value={zoom}
               onChange={(event) => {
                 const level = ZOOM_LEVELS.find(

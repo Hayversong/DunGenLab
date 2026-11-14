@@ -46,7 +46,7 @@ export function ControlPanel({
         <div className={styles.seedRow}>
           <input
             id="seed"
-            className="px-frame-sm"
+            className="px-frame-sm px-field"
             type="text"
             value={seed}
             maxLength={MAX_SEED_LENGTH}
