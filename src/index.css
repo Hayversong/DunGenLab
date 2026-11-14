@@ -20,7 +20,7 @@
 
 body {
   margin: 0;
-  min-height: 100vh;
+  min-height: 100dvh;
   color: var(--text);
   background: var(--stone-900);
 }
@@ -32,8 +32,9 @@ select {
 }
 
 /* Um só contorno de foco para o app inteiro. Aparece ao navegar pelo teclado
-   e não ao clicar com o mouse. */
+   e não ao clicar com o mouse. Onde o ouro não contrasta com o fundo, o
+   componente troca a cor pela variável --focus. */
 :focus-visible {
-  outline: 4px solid var(--gold);
+  outline: 4px solid var(--focus, var(--gold));
   outline-offset: 4px;
 }

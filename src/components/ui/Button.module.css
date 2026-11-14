@@ -1,4 +1,6 @@
 .button {
+  /* Sem isto o botão herdaria a cor de moldura da janela em que está. */
+  --frame-light: var(--win-border);
   min-height: 36px;
   padding: var(--space-1) var(--space-3);
   color: var(--text);
@@ -34,6 +36,8 @@
 
 .primary {
   --frame-light: var(--gold);
+  /* O contorno de foco em ouro se confundiria com a moldura em ouro. */
+  --focus: var(--text);
   color: var(--ink-on-gold);
   background: var(--gold);
 }
@@ -45,5 +49,12 @@
 @media (prefers-reduced-motion: reduce) {
   .button:active:not(:disabled) {
     transform: none;
+  }
+}
+
+/* Em tela de toque, todo botão tem a altura mínima de um dedo. */
+@media (max-width: 1099px) {
+  .button {
+    min-height: var(--touch);
   }
 }

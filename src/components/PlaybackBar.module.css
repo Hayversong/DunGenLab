@@ -26,9 +26,3 @@
 .bar[data-part="main"] .buttons {
   grid-template-columns: 1fr 1fr 1fr;
 }
-
-@media (max-width: 1099px) {
-  .buttons button {
-    min-height: var(--touch);
-  }
-}

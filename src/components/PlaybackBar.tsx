@@ -60,6 +60,7 @@ export function PlaybackBar({
               variant="primary"
               className={styles.generate}
               onClick={onGenerate}
+              aria-keyshortcuts="Space"
             >
               Gerar
             </Button>

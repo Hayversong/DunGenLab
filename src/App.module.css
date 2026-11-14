@@ -136,11 +136,6 @@
   .side {
     gap: var(--space-3);
   }
-
-  .tools button,
-  .exit button {
-    min-height: var(--touch);
-  }
 }
 
 /* Celular, e tablet em pé: uma coluna só, e a página rola. */

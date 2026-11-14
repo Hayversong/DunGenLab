@@ -28,7 +28,6 @@
 
 .buttons button {
   flex: 1;
-  min-height: var(--touch);
   white-space: nowrap;
 }
 
@@ -42,4 +41,5 @@
   padding: var(--space-2);
   color: var(--text);
   background: var(--error-bg);
+  overflow-wrap: anywhere;
 }

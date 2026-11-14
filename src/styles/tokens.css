@@ -29,7 +29,6 @@
 
   /* Ouro: cursor, seleção, foco e botão principal. */
   --gold: #d8a93a;
-  --gold-shade: #8a5a2b;
   --ink-on-gold: #24190a;
 
   /* Cores de preenchimento (barras e tiles). Como texto, só as versões
@@ -42,8 +41,10 @@
   --teal-light: #7fc4c2;
   --error-bg: #7a241d;
 
-  /* Tudo é múltiplo desta unidade, como em uma grade de pixels. */
-  --u: 4px;
+  /* Fundo escurecido atrás de uma janela modal, em cor chapada. */
+  --backdrop: rgb(16 15 13 / 0.75);
+
+  /* Tudo é múltiplo de 4 px, como em uma grade de pixels. */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;

@@ -20,6 +20,8 @@
 
 .parchment {
   --frame-light: var(--parch-border);
+  /* Ouro sobre pergaminho quase não aparece: aqui o foco é escuro. */
+  --focus: var(--parch-text);
   color: var(--parch-text);
   background: var(--parch);
 }

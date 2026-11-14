@@ -24,9 +24,3 @@
 .seedRow input {
   flex: 1;
 }
-
-@media (max-width: 1099px) {
-  .seedRow button {
-    min-height: var(--touch);
-  }
-}

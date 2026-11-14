@@ -189,7 +189,7 @@ export function drawMarkers(
     const top = point.y * tileSize;
 
     if (kind === "hero" && textured) {
-      const frame = blinkOn ? 0 : 1 % HERO_FRAMES.length;
+      const frame = (blinkOn ? 0 : 1) % HERO_FRAMES.length;
       ctx.drawImage(
         textured.image,
         frame * tileSize,
