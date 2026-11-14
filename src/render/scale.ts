@@ -4,6 +4,10 @@ export const BASE_TILE = 8;
 // Maior tile que a tela usa, em pixels do aparelho.
 export const MAX_TILE = 64;
 
+// Teto de pixels do canvas do mapa: abaixo do limite dos navegadores de
+// celular, que recusam ou apagam canvas maiores.
+export const MAX_CANVAS_PIXELS = 16_000_000;
+
 export const ZOOM_LEVELS = [1, 2, 3] as const;
 export type ZoomLevel = (typeof ZOOM_LEVELS)[number];
 // "fit" ajusta o mapa ao espaço livre; um número fixa o tamanho do tile.
@@ -53,5 +57,10 @@ export function tileSizeFor(
       rows,
     );
   }
-  return Math.max(1, Math.round(BASE_TILE * zoom * ratio));
+  const wanted = Math.max(1, Math.round(BASE_TILE * zoom * ratio));
+  // Um canvas grande demais derruba a aba (celulares têm limite baixo).
+  // O zoom manual cede antes de passar do teto de pixels.
+  const cells = Math.max(1, cols * rows);
+  const cap = Math.max(1, Math.floor(Math.sqrt(MAX_CANVAS_PIXELS / cells)));
+  return Math.min(wanted, cap);
 }

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { MAX_TILE, fitTileSize, tileSizeFor } from "../src/render/scale";
+import {
+  MAX_CANVAS_PIXELS,
+  MAX_TILE,
+  fitTileSize,
+  tileSizeFor,
+} from "../src/render/scale";
 
 describe("fitTileSize", () => {
   it("escolhe o maior tile inteiro que cabe nas duas dimensões", () => {
@@ -69,6 +74,14 @@ describe("tileSizeFor", () => {
   it("no zoom manual, o tile é múltiplo do tile base", () => {
     expect(tileSizeFor(1, area, 80, 50, 1)).toBe(8);
     expect(tileSizeFor(2, area, 80, 50, 1)).toBe(16);
+    expect(tileSizeFor(3, area, 80, 50, 2)).toBe(48);
+  });
+
+  it("o zoom manual não deixa o canvas passar do teto de pixels", () => {
+    const tile = tileSizeFor(3, area, 200, 120, 3);
+    expect(tile).toBeLessThan(72);
+    expect(200 * tile * 120 * tile).toBeLessThanOrEqual(MAX_CANVAS_PIXELS);
+    // No mapa padrão o teto não interfere.
     expect(tileSizeFor(3, area, 80, 50, 2)).toBe(48);
   });
 
