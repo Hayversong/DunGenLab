@@ -11,6 +11,13 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Variáveis de ambiente e pastas criadas pelas hospedagens
+.env
+.env.*
+!.env.example
+.vercel
+.netlify
 docs/
 
 # Editor directories and files
