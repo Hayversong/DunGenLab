@@ -1,35 +1,24 @@
 .metrics {
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.metrics h2 {
-  margin: 0 0 8px;
-  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .empty,
 .hint {
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.hint {
-  margin-top: 8px;
-  font-size: 0.8rem;
+  color: var(--text-soft);
 }
 
 .list {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 6px 12px;
+  gap: var(--space-1) var(--space-3);
   margin: 0;
-  font-size: 0.9rem;
 }
 
 .list dt {
-  color: var(--text-muted);
+  color: var(--text-soft);
 }
 
 .list dd {

@@ -6,6 +6,9 @@ import {
 } from "../core/constants";
 import type { GenParams, MapGenerator, ParamDef } from "../core/types";
 import { ParamField } from "./ParamField";
+import { Button } from "./ui/Button";
+import { MenuList } from "./ui/MenuList";
+import { Window } from "./ui/Window";
 import styles from "./ControlPanel.module.css";
 
 export interface MapSize {
@@ -60,36 +63,32 @@ export function ControlPanel({
 }: ControlPanelProps) {
   return (
     <div className={styles.panel}>
-      <div className={styles.field}>
-        <label htmlFor="algorithm">Algoritmo</label>
-        <select
-          id="algorithm"
-          value={generator.id}
-          onChange={(event) => onGeneratorChange(event.target.value)}
-        >
-          {generators.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
+      <MenuList
+        label="Algoritmo"
+        options={generators.map((item) => ({
+          value: item.id,
+          label: item.name,
+        }))}
+        value={generator.id}
+        onChange={onGeneratorChange}
+      />
+      <Window variant="parchment">
         <p className={styles.description}>{generator.description}</p>
-      </div>
+      </Window>
 
       <div className={styles.field}>
         <label htmlFor="seed">Seed</label>
         <div className={styles.seedRow}>
           <input
             id="seed"
+            className="px-frame-sm"
             type="text"
             value={seed}
             onChange={(event) => onSeedChange(event.target.value)}
             spellCheck={false}
             autoComplete="off"
           />
-          <button type="button" onClick={onRandomSeed}>
-            Aleatória
-          </button>
+          <Button onClick={onRandomSeed}>Aleatória</Button>
         </div>
       </div>
 

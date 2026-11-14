@@ -1,17 +1,15 @@
 .field {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 4px 8px;
+  gap: 0 var(--space-2);
   align-items: baseline;
 }
 
 .field label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-soft);
 }
 
 .field output {
-  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -19,5 +17,5 @@
   grid-column: 1 / -1;
   width: 100%;
   margin: 0;
-  accent-color: var(--accent);
+  accent-color: var(--gold);
 }

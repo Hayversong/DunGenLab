@@ -5,6 +5,8 @@ import { ExportPanel } from "./components/ExportPanel";
 import { MapCanvas } from "./components/MapCanvas";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { PlaybackBar } from "./components/PlaybackBar";
+import { DialogBox } from "./components/ui/DialogBox";
+import { Window } from "./components/ui/Window";
 import { DEFAULT_MAP_HEIGHT, DEFAULT_MAP_WIDTH } from "./core/constants";
 import { exportFileName, fromJSON, toJSON } from "./core/export";
 import { generators, getGenerator } from "./core/generators";
@@ -161,7 +163,7 @@ function App() {
   return (
     <div className={styles.app}>
       <header className={styles.header}>
-        <h1>DunGenLab</h1>
+        <h1 className="px-title">DunGenLab</h1>
         <p>Geração procedural de masmorras, passo a passo</p>
       </header>
 
@@ -172,15 +174,16 @@ function App() {
             highlight={generation.lastStep?.highlight}
             version={generation.version}
           />
-          {/* Durante a animação o texto muda dezenas de vezes por segundo;
-              um leitor de tela só é avisado quando ela para. */}
-          <p
-            className={styles.stepText}
-            role="status"
-            aria-live={generation.status === "running" ? "off" : "polite"}
-          >
-            {generation.lastStep?.description ?? STATUS_TEXT[generation.status]}
-          </p>
+          {/* Durante a animação o texto muda dezenas de vezes por segundo:
+              aparece direto, sem o efeito de digitação, e um leitor de tela
+              só é avisado quando ela para. */}
+          <DialogBox
+            text={
+              generation.lastStep?.description ?? STATUS_TEXT[generation.status]
+            }
+            instant={generation.status === "running"}
+            live={generation.status === "running" ? "off" : "polite"}
+          />
           <PlaybackBar
             status={generation.status}
             speed={generation.speed}
@@ -195,33 +198,39 @@ function App() {
         </section>
 
         <aside className={styles.panel} aria-label="Controles">
-          <ControlPanel
-            generators={generators}
-            generator={generator}
-            params={params}
-            seed={seed}
-            size={size}
-            onGeneratorChange={handleGeneratorChange}
-            onParamChange={handleParamChange}
-            onSeedChange={setSeed}
-            onRandomSeed={() => setSeed(randomSeed())}
-            onSizeChange={handleSizeChange}
-          />
+          <Window title="Comandos">
+            <ControlPanel
+              generators={generators}
+              generator={generator}
+              params={params}
+              seed={seed}
+              size={size}
+              onGeneratorChange={handleGeneratorChange}
+              onParamChange={handleParamChange}
+              onSeedChange={setSeed}
+              onRandomSeed={() => setSeed(randomSeed())}
+              onSizeChange={handleSizeChange}
+            />
+          </Window>
 
-          <MetricsPanel
-            metrics={generation.metrics}
-            roomCount={generation.lastStep?.roomCount ?? null}
-            elapsedMs={generation.elapsedMs}
-            imported={generation.imported}
-          />
+          <Window title="Status">
+            <MetricsPanel
+              metrics={generation.metrics}
+              roomCount={generation.lastStep?.roomCount ?? null}
+              elapsedMs={generation.elapsedMs}
+              imported={generation.imported}
+            />
+          </Window>
 
-          <ExportPanel
-            canExport={exportable !== null}
-            error={exportError}
-            onExportPng={handleExportPng}
-            onExportJson={handleExportJson}
-            onImportJson={handleImportJson}
-          />
+          <Window title="Arquivo">
+            <ExportPanel
+              canExport={exportable !== null}
+              error={exportError}
+              onExportPng={handleExportPng}
+              onExportJson={handleExportJson}
+              onImportJson={handleImportJson}
+            />
+          </Window>
         </aside>
       </main>
     </div>

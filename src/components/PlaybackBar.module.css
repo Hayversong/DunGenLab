@@ -1,7 +1,7 @@
 .bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 24px;
+  gap: var(--space-3) var(--space-6);
   align-items: center;
   justify-content: space-between;
 }
@@ -9,53 +9,41 @@
 .buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-}
-
-.buttons button {
-  padding: 8px 14px;
-  font: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.buttons button:hover:not(:disabled) {
-  border-color: var(--text-muted);
-}
-
-.buttons button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.buttons .primary {
-  color: #14161c;
-  font-weight: 600;
-  background: var(--accent);
-  border-color: var(--accent);
+  gap: var(--space-3);
+  padding: var(--frame-sm);
 }
 
 .speed {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 10px;
+  gap: var(--space-1) var(--space-3);
   align-items: center;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-stone);
 }
 
 .speed input {
   width: 140px;
   margin: 0;
-  accent-color: var(--accent);
+  accent-color: var(--gold);
 }
 
 .speed output {
-  min-width: 13em;
+  min-width: 14em;
   font-variant-numeric: tabular-nums;
+}
+
+.shortcuts {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--text-stone);
+}
+
+.shortcuts kbd {
+  padding: 0 var(--space-2);
+  font: inherit;
+  color: var(--text);
+  background: var(--stone-800);
+  border: 4px solid var(--stone-700);
 }
 
 @media (max-width: 520px) {
@@ -66,7 +54,7 @@
 
   .buttons button {
     flex: 1 1 30%;
-    min-height: 44px;
+    min-height: var(--touch);
   }
 
   .speed {
@@ -82,20 +70,4 @@
     min-width: 0;
     flex-basis: 100%;
   }
-}
-
-.shortcuts {
-  flex-basis: 100%;
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.shortcuts kbd {
-  padding: 1px 6px;
-  font: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
 }

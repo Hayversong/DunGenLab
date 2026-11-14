@@ -9,14 +9,12 @@
 }
 
 .header h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  letter-spacing: 0.02em;
+  color: var(--gold);
 }
 
 .header p {
-  margin: 4px 0 0;
-  color: var(--text-muted);
+  margin: var(--space-1) 0 0;
+  color: var(--text-stone);
 }
 
 .layout {
@@ -29,26 +27,17 @@
 .stage {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-6);
   min-width: 0;
-}
-
-.stepText {
-  margin: 0;
-  min-height: 1.5em;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
+  padding: var(--frame);
 }
 
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  gap: var(--space-6);
+  /* Espaço para as molduras, que são desenhadas para fora das janelas. */
+  padding: var(--frame);
 }
 
 /* Em tela estreita o painel desce para baixo do mapa e ocupa a largura toda. */

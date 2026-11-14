@@ -1,5 +1,6 @@
 import type { GenerationStatus } from "../hooks/useGeneration";
 import { SPEED_LEVELS } from "../hooks/useGeneration";
+import { Button } from "./ui/Button";
 import styles from "./PlaybackBar.module.css";
 
 interface PlaybackBarProps {
@@ -48,38 +49,35 @@ export function PlaybackBar({
   return (
     <div className={styles.bar}>
       <div className={styles.buttons}>
-        <button type="button" className={styles.primary} onClick={onGenerate}>
+        <Button variant="primary" onClick={onGenerate}>
           Gerar
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           onClick={status === "running" ? onPause : onResume}
           disabled={!inProgress}
           aria-keyshortcuts="Space"
         >
           {status === "running" ? "Pausar" : "Continuar"}
-        </button>
+        </Button>
         {/* Com a animação rodando, o passo manual não faria diferença: é
             preciso pausar antes. */}
-        <button
-          type="button"
+        <Button
           onClick={onStep}
           disabled={status !== "paused"}
           aria-keyshortcuts="ArrowRight"
         >
           Passo
-        </button>
-        <button type="button" onClick={onFinish} disabled={!inProgress}>
+        </Button>
+        <Button onClick={onFinish} disabled={!inProgress}>
           Finalizar
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           onClick={onReset}
           disabled={status === "idle"}
           aria-keyshortcuts="R"
         >
           Reiniciar
-        </button>
+        </Button>
       </div>
 
       <div className={styles.speed}>

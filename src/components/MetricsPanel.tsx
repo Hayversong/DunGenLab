@@ -1,4 +1,5 @@
 import type { MapMetrics } from "../core/metrics";
+import { StatBar } from "./ui/StatBar";
 import styles from "./MetricsPanel.module.css";
 
 interface MetricsPanelProps {
@@ -24,22 +25,27 @@ export function MetricsPanel({
   imported,
 }: MetricsPanelProps) {
   return (
-    <section className={styles.metrics} aria-labelledby="metrics-title">
-      <h2 id="metrics-title">Métricas</h2>
-
+    <div className={styles.metrics}>
       {metrics === null ? (
         <p className={styles.empty}>As métricas aparecem ao fim da geração.</p>
       ) : (
         <>
+          <StatBar
+            label="Chão"
+            value={metrics.floorPercent}
+            max={100}
+            text={`${decimal.format(metrics.floorPercent)}%`}
+          />
+          <StatBar
+            label="Maior região"
+            value={metrics.largestRegionPercent}
+            max={100}
+            text={`${decimal.format(metrics.largestRegionPercent)}% do chão`}
+            tone="green"
+          />
           <dl className={styles.list}>
-            <dt>Chão</dt>
-            <dd>{decimal.format(metrics.floorPercent)}%</dd>
-
             <dt>Regiões conectadas</dt>
             <dd>{metrics.regionCount}</dd>
-
-            <dt>Maior região</dt>
-            <dd>{decimal.format(metrics.largestRegionPercent)}% do chão</dd>
 
             {roomCount !== null && (
               <>
@@ -64,6 +70,6 @@ export function MetricsPanel({
           )}
         </>
       )}
-    </section>
+    </div>
   );
 }

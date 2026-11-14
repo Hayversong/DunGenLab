@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { PNG_TILE_SIZES } from "../render/pngExport";
 import type { PngTileSize } from "../render/pngExport";
+import { Button } from "./ui/Button";
 import styles from "./ExportPanel.module.css";
 
 interface ExportPanelProps {
@@ -24,13 +25,12 @@ export function ExportPanel({
   const [tileSize, setTileSize] = useState<PngTileSize>(DEFAULT_TILE_SIZE);
 
   return (
-    <section className={styles.export} aria-labelledby="export-title">
-      <h2 id="export-title">Exportar</h2>
-
+    <div className={styles.export}>
       <div className={styles.row}>
         <label htmlFor="png-tile-size">Tamanho do tile no PNG</label>
         <select
           id="png-tile-size"
+          className="px-frame-sm"
           value={tileSize}
           onChange={(event) => {
             const chosen = PNG_TILE_SIZES.find(
@@ -48,16 +48,12 @@ export function ExportPanel({
       </div>
 
       <div className={styles.buttons}>
-        <button
-          type="button"
-          onClick={() => onExportPng(tileSize)}
-          disabled={!canExport}
-        >
+        <Button onClick={() => onExportPng(tileSize)} disabled={!canExport}>
           Exportar PNG
-        </button>
-        <button type="button" onClick={onExportJson} disabled={!canExport}>
+        </Button>
+        <Button onClick={onExportJson} disabled={!canExport}>
           Exportar JSON
-        </button>
+        </Button>
       </div>
 
       {!canExport && (
@@ -67,9 +63,9 @@ export function ExportPanel({
       )}
 
       <div className={styles.buttons}>
-        <button type="button" onClick={() => fileInputRef.current?.click()}>
+        <Button onClick={() => fileInputRef.current?.click()}>
           Importar JSON
-        </button>
+        </Button>
         {/* O campo de arquivo do navegador não aceita estilo; fica escondido
             e o botão acima abre a janela de escolha por ele. */}
         <input
@@ -92,6 +88,6 @@ export function ExportPanel({
           {error}
         </p>
       )}
-    </section>
+    </div>
   );
 }
