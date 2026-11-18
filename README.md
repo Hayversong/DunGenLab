@@ -5,7 +5,7 @@ seed e os parâmetros, e veja o mapa ser construído passo a passo em um canvas:
 dá para pausar, avançar um passo de cada vez, mudar a velocidade, medir o
 resultado e exportar o mapa em PNG ou JSON.
 
-**Demo:** COLOQUE-AQUI-O-LINK-DO-DEPLOY
+**Demo:** https://hayversong.github.io/DunGenLab/
 
 ![Tela do DunGenLab com um mapa gerado por BSP](media/tela.png)
 
@@ -94,6 +94,18 @@ npm run preview  # serve o build de produção localmente
 npm run format   # Prettier
 ```
 
+## Publicação
+
+O site fica no GitHub Pages. A cada push em `master`, o workflow
+`.github/workflows/deploy.yml` instala as dependências com `npm ci`, roda
+lint, testes e build, e publica a pasta `dist/`. Se alguma checagem falhar,
+nada é publicado e o site continua na versão anterior. Para publicar de novo
+sem commit, use o botão "Run workflow" na aba Actions.
+
+O build usa caminhos relativos (`base: "./"` no `vite.config.ts`), então o
+mesmo `dist/` funciona na subpasta do Pages (`/DunGenLab/`) e na raiz de
+qualquer outro domínio.
+
 ## Decisões técnicas
 
 **Algoritmos como generators.** Cada algoritmo é uma `function*` que altera o
@@ -160,7 +172,9 @@ scripts e estilos vêm do próprio endereço.
   proíbe que a página seja embutida em outra. O primeiro vale na Vercel; o
   segundo, na Netlify e na Cloudflare Pages.
 - O build também grava a política em uma meta tag, para hospedagens que não
-  deixam configurar cabeçalhos (GitHub Pages).
+  deixam configurar cabeçalhos. É o caso do GitHub Pages, onde o site está:
+  lá valem a meta tag e o HTTPS do próprio Pages, mas não os outros
+  cabeçalhos (a proteção contra ser embutido em outra página, por exemplo).
 - O arquivo importado é tratado como dado não confiável: tamanho limitado,
   cada campo validado, textos com comprimento máximo.
 
