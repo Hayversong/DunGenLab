@@ -1,0 +1,55 @@
+# Publica o site no GitHub Pages a cada push em master.
+# Antes de publicar, roda as mesmas checagens de um commit local: lint,
+# testes e build (que inclui a checagem de tipos). Se uma falhar, o site
+# continua na versão anterior.
+name: Publicar no GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  # Permite publicar de novo pela aba Actions, sem precisar de commit.
+  workflow_dispatch:
+
+# Só o necessário: ler o código e publicar no Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Dois pushes seguidos não publicam ao mesmo tempo. O mais novo espera o
+# anterior terminar, em vez de cancelá-lo no meio da publicação.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` instala exatamente as versões do package-lock.json.
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
